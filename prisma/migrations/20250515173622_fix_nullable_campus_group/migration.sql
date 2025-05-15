@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE `Donor` ALTER COLUMN `campusId` DROP DEFAULT,
+    ALTER COLUMN `groupId` DROP DEFAULT;
