@@ -8,6 +8,7 @@ type BloodGroup =
 	| 'AB_POSITIVE' | 'AB_NEGATIVE'
 	| 'O_POSITIVE' | 'O_NEGATIVE';
 
+
 interface Campus {
 	id: string;
 	name: string;
@@ -39,6 +40,24 @@ interface DonorTableProps {
 // Helper function to format blood group for display
 const formatBloodGroup = (bloodGroup: BloodGroup): string => {
 	return bloodGroup.replace('_POSITIVE', '+').replace('_NEGATIVE', '-');
+};
+const bloodGroupColor = (bloodGroup: BloodGroup) => {
+	switch (bloodGroup) {
+		case 'A_POSITIVE':
+		case 'A_NEGATIVE':
+			return 'bg-pink-100 text-pink-700 border-pink-200';
+		case 'B_POSITIVE':
+		case 'B_NEGATIVE':
+			return 'bg-blue-100 text-blue-700 border-blue-200';
+		case 'AB_POSITIVE':
+		case 'AB_NEGATIVE':
+			return 'bg-purple-100 text-purple-700 border-purple-200';
+		case 'O_POSITIVE':
+		case 'O_NEGATIVE':
+			return 'bg-green-100 text-green-700 border-green-200';
+		default:
+			return 'bg-gray-100 text-gray-700 border-gray-200';
+	}
 };
 
 export default function DonorTable({ donors }: DonorTableProps) {
@@ -123,8 +142,10 @@ export default function DonorTable({ donors }: DonorTableProps) {
 							<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
 								{donor.name}
 							</td>
-							<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-								{formatBloodGroup(donor.bloodGroup)}
+							<td className="px-6 py-4 whitespace-nowrap text-sm">
+								<span className={`inline-block px-2 py-1 rounded-full font-semibold tracking-wide shadow-sm border ${bloodGroupColor(donor.bloodGroup)}`}>
+									{formatBloodGroup(donor.bloodGroup)}
+								</span>
 							</td>
 							<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
 								{donor.isAvailable ? (
