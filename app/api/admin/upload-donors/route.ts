@@ -73,9 +73,6 @@ export async function POST(request: Request) {
     );
     return NextResponse.json({ message: "Unauthorized" }, { status: 403 }); // Forbidden
   }
-
-  console.log(`Admin upload initiated by: ${session.user.email}`);
-
   // 2. --- File Handling & Parsing ---
   let fileContent: string;
   try {
@@ -98,7 +95,7 @@ export async function POST(request: Request) {
     }
 
     fileContent = await file.text();
-    console.log(`Received file: ${file.name}, Size: ${file.size} bytes`);
+    // console.log(`Received file: ${file.name}, Size: ${file.size} bytes`);
   } catch (error) {
     console.error("Error reading file:", error);
     return NextResponse.json(
@@ -126,9 +123,11 @@ export async function POST(request: Request) {
     }
 
     // Validate headers (optional but recommended)
-    parseResult.meta.fields = parseResult.meta.fields?.map(hd=> convertToCamelCase(hd));
+    parseResult.meta.fields = parseResult.meta.fields?.map((hd) =>
+      convertToCamelCase(hd)
+    );
     const headers = parseResult.meta.fields;
-    console.log({headers})
+    console.log({ headers });
     if (!headers || !EXPECTED_HEADERS.every((h) => headers.includes(h))) {
       console.warn(
         "CSV Headers mismatch. Expected:",
@@ -163,8 +162,8 @@ export async function POST(request: Request) {
 
   for (const [index, row] of (parseResult.data as any[]).entries()) {
     const rowNumber = index + 2; // Account for header row and 0-based index
-    const cRow = convertKeysToCamel(row)
-    console.log(cRow)
+    const cRow = convertKeysToCamel(row);
+    console.log(cRow);
     // Basic row validation
     if (
       !cRow.name ||
