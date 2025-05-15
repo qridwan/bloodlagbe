@@ -2,33 +2,33 @@
 
 // Specifies the database provider (mysql in this case) and the connection URL (loaded from .env)
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL") // Make sure DATABASE_URL is set in your .env file
+    provider = "mysql"
+    url      = env("DATABASE_URL") // Make sure DATABASE_URL is set in your .env file
 }
 
 // Specifies the Prisma Client generator
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 // --- Enums ---
 
 // Defines the possible blood groups
 enum BloodGroup {
-  A_POSITIVE
-  A_NEGATIVE
-  B_POSITIVE
-  B_NEGATIVE
-  AB_POSITIVE
-  AB_NEGATIVE
-  O_POSITIVE
-  O_NEGATIVE
+    A_POSITIVE
+    A_NEGATIVE
+    B_POSITIVE
+    B_NEGATIVE
+    AB_POSITIVE
+    AB_NEGATIVE
+    O_POSITIVE
+    O_NEGATIVE
 }
 
 // Defines user roles
 enum UserRole {
-  USER
-  ADMIN
+    USER
+    ADMIN
 }
 
 // --- Models ---
@@ -36,122 +36,122 @@ enum UserRole {
 // Model for user accounts managed by next-auth
 // A user can log in via multiple providers (e.g., email/password, Google)
 model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String // Provider type (e.g., 'oauth', 'email')
-  provider          String // Provider name (e.g., 'google', 'credentials')
-  providerAccountId String // ID from the provider
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
+    id                String  @id @default(cuid())
+    userId            String
+    type              String // Provider type (e.g., 'oauth', 'email')
+    provider          String // Provider name (e.g., 'google', 'credentials')
+    providerAccountId String // ID from the provider
+    refresh_token     String? @db.Text
+    access_token      String? @db.Text
+    expires_at        Int?
+    token_type        String?
+    scope             String?
+    id_token          String? @db.Text
+    session_state     String?
 
-  // Relation to the User model
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    // Relation to the User model
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Ensure combination of provider and providerAccountId is unique
-  @@unique([provider, providerAccountId])
+    // Ensure combination of provider and providerAccountId is unique
+    @@unique([provider, providerAccountId])
 }
 
 // Model for user sessions managed by next-auth
 model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    id           String   @id @default(cuid())
+    sessionToken String   @unique
+    userId       String
+    expires      DateTime
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 // Model for application users (can be Admins or regular Users/Donors)
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique // User's login email
-  emailVerified DateTime?
-  image         String?   // Profile picture URL
-  hashedPassword String?   // Store hashed password if using credentials provider
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  role          UserRole  @default(USER) // Role for authorization (USER or ADMIN)
+    id             String    @id @default(cuid())
+    name           String?
+    email          String?   @unique // User's login email
+    emailVerified  DateTime?
+    image          String? // Profile picture URL
+    hashedPassword String? // Store hashed password if using credentials provider
+    createdAt      DateTime  @default(now())
+    updatedAt      DateTime  @updatedAt
+    role           UserRole  @default(USER) // Role for authorization (USER or ADMIN)
 
-  // Relations managed by next-auth
-  accounts Account[]
-  sessions Session[]
+    // Relations managed by next-auth
+    accounts Account[]
+    sessions Session[]
 
-  // Relation to the Donor profile (a user might be a donor)
-  // This is a one-to-one relation, meaning one User can be linked to one Donor profile
-  donor Donor?
+    // Relation to the Donor profile (a user might be a donor)
+    // This is a one-to-one relation, meaning one User can be linked to one Donor profile
+    donor Donor?
 }
 
 // Model for email verification tokens (used by next-auth email provider)
 model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
+    identifier String
+    token      String   @unique
+    expires    DateTime
 
-  @@unique([identifier, token])
+    @@unique([identifier, token])
 }
 
 // Model for Campuses (e.g., University, College)
 model Campus {
-  id   String @id @default(cuid())
-  name String @unique // Campus name must be unique
+    id   String @id @default(cuid())
+    name String @unique // Campus name must be unique
 
-  // Relation: One campus can have many donors
-  donors Donor[]
+    // Relation: One campus can have many donors
+    donors Donor[]
 }
 
 // Model for Social Groups (e.g., Clubs, Organizations)
 model Group {
-  id   String @id @default(cuid())
-  name String @unique // Group name must be unique
+    id   String @id @default(cuid())
+    name String @unique // Group name must be unique
 
-  // Relation: One group can have many donors
-  donors Donor[]
+    // Relation: One group can have many donors
+    donors Donor[]
 }
 
 // Model for Blood Donors
 model Donor {
-  id            String     @id @default(cuid())
-  name          String     // Donor's full name
-  bloodGroup    BloodGroup
-  contactNumber String     // Public contact number
-  email         String?    // Optional donor-specific email (might differ from login email)
-  district      String
-  city          String
-  isAvailable   Boolean    @default(true) // Availability status for donation
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+    id            String     @id @default(cuid())
+    name          String // Donor's full name
+    bloodGroup    BloodGroup
+    contactNumber String // Public contact number
+    email         String? // Optional donor-specific email (might differ from login email)
+    district      String
+    city          String
+    isAvailable   Boolean    @default(true) // Availability status for donation
+    createdAt     DateTime   @default(now())
+    updatedAt     DateTime   @updatedAt
 
-  // Optional foreign key linking to a User account
-  // This allows a donor profile to exist even without a registered user (e.g., uploaded by admin)
-  // If the donor registers, this field links their profile to their user account.
-  userId String? @unique // Ensures one user can only be linked to one donor profile
-  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull) // If user is deleted, set userId to null
+    // Optional foreign key linking to a User account
+    // This allows a donor profile to exist even without a registered user (e.g., uploaded by admin)
+    // If the donor registers, this field links their profile to their user account.
+    userId String? @unique // Ensures one user can only be linked to one donor profile
+    user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull) // If user is deleted, set userId to null
 
-  // Foreign key for Campus
-  campusId String
-  campus   Campus @relation(fields: [campusId], references: [id], onDelete: Restrict) // Prevent deleting a campus if donors are linked
+    // Foreign key for Campus
+    campusId String? // Optional: Campus ID can be null if not linked to any campus
+    campus   Campus? @relation(fields: [campusId], references: [id], onDelete: Restrict) // Prevent deleting a campus if donors are linked
 
-  // Foreign key for Group
-  groupId String
-  group   Group @relation(fields: [groupId], references: [id], onDelete: Restrict) // Prevent deleting a group if donors are linked
+    // Foreign key for Group
+    groupId String? // Optional: Group ID can be null if not linked to any group
+    group   Group?  @relation(fields: [groupId], references: [id], onDelete: Restrict) // Prevent deleting a group if donors are linked
 
-  // Relation: One donor can have many donation records
-  donations Donation[]
+    // Relation: One donor can have many donation records
+    donations Donation[]
 }
 
 // Model for tracking individual blood donations
 model Donation {
-  id         String   @id @default(cuid())
-  donationDate DateTime // Date of the donation
-  location   String?  // Optional: Location where the donation took place
-  createdAt  DateTime @default(now())
+    id           String   @id @default(cuid())
+    donationDate DateTime // Date of the donation
+    location     String? // Optional: Location where the donation took place
+    createdAt    DateTime @default(now())
 
-  // Foreign key for Donor
-  donorId String
-  donor   Donor  @relation(fields: [donorId], references: [id], onDelete: Cascade) // If donor is deleted, delete their donation history too
+    // Foreign key for Donor
+    donorId String
+    donor   Donor  @relation(fields: [donorId], references: [id], onDelete: Cascade) // If donor is deleted, delete their donation history too
 }

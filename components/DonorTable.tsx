@@ -138,7 +138,7 @@ export default function DonorTable({ donors }: DonorTableProps) {
 				</thead>
 				<tbody className="bg-white divide-y divide-gray-200">
 					{donors.map((donor) => (
-						<tr key={donor.id} className="hover:bg-gray-50">
+						<tr key={donor.id} className={` ${donor.isAvailable ? 'cursor-pointer hover:bg-gray-50' : 'cursor-not-allowed opacity-80 bg-gray-200'}`}>
 							<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
 								{donor.name}
 							</td>
@@ -160,7 +160,7 @@ export default function DonorTable({ donors }: DonorTableProps) {
 										{donor.contactNumber}
 									</a>
 								) : (
-									<span className="text-gray-400">{donor.contactNumber}</span>
+									<span className="text-gray-400 bg-gray-400">{donor.contactNumber}</span>
 								)}
 							</td>
 							<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
@@ -170,10 +170,10 @@ export default function DonorTable({ donors }: DonorTableProps) {
 								{donor.city}
 							</td>
 							<td className="px-6 py-4 whitespace-wrap text-sm text-gray-700 min-w-30">
-								{donor.campus.name}
+								{donor?.campus?.name ?? "n/a"}
 							</td>
 							<td className="px-6 py-4 whitespace-wrap text-sm text-gray-700 min-w-30">
-								{donor.group.name}
+								{donor?.group?.name ?? "n/a"}
 							</td>
 							<td className="hidden md:block px-6 py-4 whitespace-nowrap text-sm">
 								{donor.isAvailable ? (
