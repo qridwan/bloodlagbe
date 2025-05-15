@@ -185,7 +185,6 @@ export default function DonorFilters({
 					type="text"
 					id="district"
 					name="district"
-					defaultValue={district || ''}
 					value={district}
 					onChange={handleInputChange}
 					placeholder="e.g., Dhaka"
@@ -203,7 +202,6 @@ export default function DonorFilters({
 					type="text"
 					id="city"
 					name="city"
-					defaultValue={city || ''}
 					value={city}
 					onChange={handleInputChange}
 					placeholder="e.g., Gulshan"
