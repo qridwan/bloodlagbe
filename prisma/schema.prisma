@@ -122,6 +122,7 @@ model Donor {
     email         String? // Optional donor-specific email (might differ from login email)
     district      String
     city          String
+    tagline       String? // Optional tagline or description
     isAvailable   Boolean    @default(true) // Availability status for donation
     createdAt     DateTime   @default(now())
     updatedAt     DateTime   @updatedAt

@@ -1,39 +1,38 @@
-name,blood_group,contact_number,email,district,city,campus,group,is_available
-Md. Zia-UI Haq,A_POSITIVE,01721177899,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Md. Miran Pervez,A_POSITIVE,"01717697613, 01725329874",n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Md.Ariful Haq,A_POSITIVE,01825146959,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Md.Sayful Islam,A_POSITIVE,"01191761606, 01921469048",n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Md. Saddam Hossain,A_POSITIVE,"01722904340, 01927094314",n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Md.Aman Ullah Bahar,A_POSITIVE,01924427654,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Jahangir Hossain,A_POSITIVE,"01757187675, 01710609089",n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Shahninur Evon,A_POSITIVE,01857815471,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Md. Tarikul Islam,A_POSITIVE,01672073987,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Md. Nuruzzaman,A_POSITIVE,01914537557,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Md. Reswat Azim,A_POSITIVE,01960531003,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Abu Hasem Sujan,A_POSITIVE,01724565639,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Rimu Das,A_POSITIVE,n/a,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Chapal Das,A_POSITIVE,01735597701,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Aminur Rahim,A_POSITIVE,01913446062,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Zayedul Islam,A_POSITIVE,01732441799,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Adiba Nithun,A_POSITIVE,n/a,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Ruhul Amin,A_POSITIVE,01737524658,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Imran Hossain,A_POSITIVE,01741571920,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Ariful Islam,A_POSITIVE,01737212231,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Md. Rabiul Hasan,A_POSITIVE,01680474554,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Ziaul Haque,A_POSITIVE,01735007953,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Md. Mehedi Hlasan,A_POSITIVE,01922666160,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Md. Masudur Rahman,A_POSITIVE,01722991387,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Suman Roy,A_POSITIVE,01913735767,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Munaza Ahmed,A_POSITIVE,n/a,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Idris Majumdar,A_POSITIVE,01777599393,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Anik Sengupta,A_POSITIVE,01680561235,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Saifur Rahman Parvez,A_POSITIVE,01816705256,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Faizun Nahar,A_POSITIVE,n/a,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Abu Anam Belel,A_POSITIVE,01670401548,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Md. Sabbir Ahmed,A_POSITIVE,01675240658,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Kanon Mutsuddi,A_POSITIVE,01825386592,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Hossamul Islam,A_POSITIVE,01682724172,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Md. Tarikul Islam,A_POSITIVE,01727781432,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Abu Kawser,A_POSITIVE,01920477949,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-Golam Mostafa,A_POSITIVE,01742769644,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True
-
+name,blood_group,contact_number,email,district,city,campus,group,is_available,tagline
+Md. Zia-UI Haq,A_POSITIVE,01721177899,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Md. Miran Pervez,A_POSITIVE,"01717697613, 01725329874",n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Md.Ariful Haq,A_POSITIVE,01825146959,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Md.Sayful Islam,A_POSITIVE,"01191761606, 01921469048",n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Md. Saddam Hossain,A_POSITIVE,"01722904340, 01927094314",n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Md.Aman Ullah Bahar,A_POSITIVE,01924427654,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Jahangir Hossain,A_POSITIVE,"01757187675, 01710609089",n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Shahninur Evon,A_POSITIVE,01857815471,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Md. Tarikul Islam,A_POSITIVE,01672073987,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Md. Nuruzzaman,A_POSITIVE,01914537557,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Md. Reswat Azim,A_POSITIVE,01960531003,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Abu Hasem Sujan,A_POSITIVE,01724565639,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Rimu Das,A_POSITIVE,n/a,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Chapal Das,A_POSITIVE,01735597701,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Aminur Rahim,A_POSITIVE,01913446062,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Zayedul Islam,A_POSITIVE,01732441799,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Adiba Nithun,A_POSITIVE,n/a,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Ruhul Amin,A_POSITIVE,01737524658,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Imran Hossain,A_POSITIVE,01741571920,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Ariful Islam,A_POSITIVE,01737212231,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Md. Rabiul Hasan,A_POSITIVE,01680474554,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Ziaul Haque,A_POSITIVE,01735007953,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Md. Mehedi Hlasan,A_POSITIVE,01922666160,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Md. Masudur Rahman,A_POSITIVE,01722991387,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Suman Roy,A_POSITIVE,01913735767,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Munaza Ahmed,A_POSITIVE,n/a,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Idris Majumdar,A_POSITIVE,01777599393,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Anik Sengupta,A_POSITIVE,01680561235,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Saifur Rahman Parvez,A_POSITIVE,01816705256,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Faizun Nahar,A_POSITIVE,n/a,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Abu Anam Belel,A_POSITIVE,01670401548,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Md. Sabbir Ahmed,A_POSITIVE,01675240658,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Kanon Mutsuddi,A_POSITIVE,01825386592,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Hossamul Islam,A_POSITIVE,01682724172,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Md. Tarikul Islam,A_POSITIVE,01727781432,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Abu Kawser,A_POSITIVE,01920477949,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch
+Golam Mostafa,A_POSITIVE,01742769644,n/a,Chattogram,"Mirsaray, Chittagong","Textile Engineering College, Mirsharay",Anirban,True,1st batch

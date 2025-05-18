@@ -31,6 +31,7 @@ interface Donor {
 	campus: Campus;
 	group: Group;
 	updatedAt: string; // Or Date
+	tagline?: string | null;
 }
 
 interface DonorTableProps {
@@ -67,6 +68,8 @@ export default function DonorTable({ donors }: DonorTableProps) {
 		return <p className="text-center text-gray-500 py-4">No donor data to display.</p>;
 	}
 
+
+
 	return (
 		<div className="overflow-x-auto shadow-md rounded-lg">
 			<table className="min-w-full divide-y divide-gray-200">
@@ -76,7 +79,11 @@ export default function DonorTable({ donors }: DonorTableProps) {
 							scope="col"
 							className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider"
 						>
-							Name
+							<div>
+								Name <span className="text-gray-500 lowercase block text-xs">
+									(tag)
+								</span>
+							</div>
 						</th>
 						<th
 							scope="col"
@@ -141,27 +148,19 @@ export default function DonorTable({ donors }: DonorTableProps) {
 						<tr key={donor.id} className={` ${donor.isAvailable ? 'cursor-pointer hover:bg-gray-50' : 'cursor-not-allowed opacity-80 bg-gray-200'}`}>
 							<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
 								{donor.name}
+								{donor.tagline && (
+									<span className="text-gray-500 block text-xs">
+										({donor.tagline})
+									</span>
+								)}
 							</td>
 							<td className="px-6 py-4 whitespace-nowrap text-sm">
 								<span className={`inline-block px-2 py-1 rounded-full font-semibold tracking-wide shadow-sm border ${bloodGroupColor(donor.bloodGroup)}`}>
 									{formatBloodGroup(donor.bloodGroup)}
 								</span>
 							</td>
-							<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-								{donor.isAvailable ? (
-									<a
-										href={`tel:${donor.contactNumber}`}
-										className="inline-flex items-center gap-1 px-3 py-1 rounded-md bg-blue-50 text-blue-700 font-semibold hover:bg-blue-100 hover:text-blue-900 transition-colors duration-150"
-										title="Call donor"
-									>
-										<svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm0 14a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5a2 2 0 00-2 2v2zm14-14a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5a2 2 0 012-2h2zm0 14a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2h-2a2 2 0 00-2 2v2z" />
-										</svg>
-										{donor.contactNumber}
-									</a>
-								) : (
-									<span className="text-gray-400 bg-gray-400">{donor.contactNumber}</span>
-								)}
+							<td className="px-6 py-4 flex gap-2 flex-wrap text-sm text-gray-700">
+								<Telephone {...donor} />
 							</td>
 							<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
 								{donor.district}
@@ -186,15 +185,43 @@ export default function DonorTable({ donors }: DonorTableProps) {
 									</span>
 								)}
 							</td>
-							{/* Optional: Last Updated
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {new Date(donor.updatedAt).toLocaleDateString()}
-              </td>
-              */}
+							{/* Optional: Last Updated */}
+							{/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+								{new Date(donor.updatedAt).toLocaleDateString()}
+							</td> */}
+
 						</tr>
 					))}
 				</tbody>
 			</table>
 		</div>
 	);
+}
+
+const Telephone = (donor: Donor) => {
+	return (donor.isAvailable && donor.contactNumber ? (
+		<>
+			{
+				donor.contactNumber.split(",").map((number, index) => (
+					<a
+						key={number + index}
+						href={`tel:${number.trim()}`}
+						className="inline-flex items-center gap-1 px-3 py-1 rounded-md bg-blue-50 text-blue-700 font-semibold hover:bg-blue-100 hover:text-blue-900 transition-colors duration-150"
+						title="Call donor"
+					>
+						{
+							number !== "n/a" ?
+								<><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm0 14a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5a2 2 0 00-2 2v2zm14-14a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5a2 2 0 012-2h2zm0 14a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2h-2a2 2 0 00-2 2v2z" />
+								</svg>
+									{number.trim()} </> : number.trim()
+						}
+					</a>
+				))
+
+			}
+		</>
+	) : (
+		<span className="text-gray-400 w-full bg-gray-400">{donor.contactNumber}</span>
+	))
 }

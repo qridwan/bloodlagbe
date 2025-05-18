@@ -1,13 +1,12 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'; // Adjust path as needed
-import { PrismaClient, Prisma, BloodGroup } from '@prisma/client'; // Prisma.BloodGroup is now correctly used
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { PrismaClient, Prisma, BloodGroup } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 // --- GET Handler (already defined) ---
 export async function GET() {
-	// ... your existing GET handler code ...
 	const session = await getServerSession(authOptions);
 
 	if (!session?.user?.id) {
@@ -20,7 +19,6 @@ export async function GET() {
 			include: { campus: true, group: true },
 		});
 
-		// await prisma.$disconnect(); // Disconnect should ideally be at the very end or in a finally block if needed per request
 
 		if (!donorProfile) {
 			return NextResponse.json({ message: 'No donor profile found for this user.' }, { status: 404 });
@@ -28,7 +26,6 @@ export async function GET() {
 		return NextResponse.json(donorProfile, { status: 200 });
 	} catch (error) {
 		console.error("Error fetching user's donor profile:", error);
-		// await prisma.$disconnect();
 		return NextResponse.json({ message: "Failed to fetch donor profile. Please try again." }, { status: 500 });
 	} finally {
 		await prisma.$disconnect(); // Disconnect in finally block
@@ -55,6 +52,7 @@ export async function POST(request: Request) {
 			campusId, // Now optional
 			groupId,  // Now optional
 			isAvailable,
+			tagline
 		} = body;
 
 		// --- Basic Input Validation ---
@@ -79,18 +77,19 @@ export async function POST(request: Request) {
 			name,
 			bloodGroup: bloodGroup as BloodGroup,
 			contactNumber,
-			email: email || null,
+			email: email ?? null,
 			district,
 			city,
 			isAvailable,
 			...(campusId ? { campus: { connect: { id: campusId } } } : {}),
 			...(groupId ? { group: { connect: { id: groupId } } } : {}),
+			tagline: tagline ?? null,
 		};
 		const donorUpdateData: Omit<Prisma.DonorUpdateInput, 'user'> = {
 			name,
 			bloodGroup: bloodGroup as BloodGroup,
 			contactNumber,
-			email: email || null,
+			email: email ?? null,
 			district,
 			city,
 			isAvailable,
@@ -100,6 +99,7 @@ export async function POST(request: Request) {
 			group: groupId
 				? { connect: { id: groupId } }
 				: { disconnect: true },
+			tagline: tagline ?? null,
 		};
 		const upsertedDonorProfile = await prisma.donor.upsert({
 			where: { userId: session.user.id },
