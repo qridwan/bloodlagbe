@@ -34,6 +34,7 @@ interface ActiveFilters {
 	city?: string | '';
 	district?: string | '';
 	availability?: 'true' | 'false' | '';
+	name?: string | '';
 }
 
 interface DonorFiltersProps {
@@ -52,6 +53,7 @@ export default function DonorFilters({
 	const debounceRef = useRef<NodeJS.Timeout | null>(null);
 	const [district, setDistrict] = React.useState<string>(activeFilters?.district || '');
 	const [city, setCity] = React.useState<string>(activeFilters?.city || '');
+	const [name, setName] = React.useState<string>(activeFilters?.name || '');
 
 	if (!options) {
 		return <p className="text-sm text-gray-500">Loading filter options...</p>;
@@ -65,6 +67,9 @@ export default function DonorFilters({
 			setDistrict(value);
 		} else if (name === 'city') {
 			setCity(value);
+		}
+		else if (name === 'name') {
+			setName(value);
 		}
 		if (debounceRef.current) {
 			clearTimeout(debounceRef.current);
@@ -85,9 +90,11 @@ export default function DonorFilters({
 			city: '',
 			district: '',
 			availability: '',
+			name: '',
 		});
 		setDistrict('');
 		setCity('');
+		setName('');
 	}
 	return (
 		<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 items-end">
@@ -205,6 +212,23 @@ export default function DonorFilters({
 					value={city}
 					onChange={handleInputChange}
 					placeholder="e.g., Gulshan"
+					disabled={isLoading}
+					className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+				/>
+
+			</div>
+			{/* Name Filter */}
+			<div>
+				<label htmlFor="name" className="block text-sm font-medium text-gray-700">
+					Name
+				</label>
+				<input
+					type="text"
+					id="name"
+					name="name"
+					value={name}
+					onChange={handleInputChange}
+					placeholder="e.g., Ridwan"
 					disabled={isLoading}
 					className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
 				/>

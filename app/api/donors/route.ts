@@ -14,6 +14,7 @@ export async function GET(request: Request) {
   const campusId = searchParams.get("campusId");
   const groupId = searchParams.get("groupId");
   const city = searchParams.get("city");
+  const name = searchParams.get("name");
   const district = searchParams.get("district");
   const availability = searchParams.get("availability"); // 'true' or 'false'
 
@@ -39,6 +40,9 @@ export async function GET(request: Request) {
   }
   if (city) {
     where.city = { contains: city }; // Case-insensitive search for city
+  }
+  if (name) {
+    where.name = { contains: name }; // Case-insensitive search for city
   }
   if (district) {
     where.district = { contains: district }; // Case-insensitive search for district
