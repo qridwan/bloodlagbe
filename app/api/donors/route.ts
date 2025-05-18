@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import { PrismaClient, Prisma, BloodGroup } from "@prisma/client";
 
 const prisma = new PrismaClient();
-const ITEMS_PER_PAGE = 10; // Default number of items per page for pagination
+const ITEMS_PER_PAGE = 10;
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
