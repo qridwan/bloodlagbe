@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/app/donors/page.tsx
 'use client';
 
@@ -56,6 +57,7 @@ interface ActiveFilters {
   city?: string | '';
   district?: string | '';
   availability?: 'true' | 'false' | '';
+  name?: string | '';
   // Add other filterable fields as needed
 }
 
@@ -69,7 +71,7 @@ interface PaginationState {
 export default function DonorsPage() {
   const [donors, setDonors] = useState<Donor[]>([]);
   const [filterOptions, setFilterOptions] = useState<FilterOptions | null>(null);
- const [activeFilters, setActiveFilters] = useState<ActiveFilters>({}); // Initialize as an empty object
+  const [activeFilters, setActiveFilters] = useState<ActiveFilters>({}); // Initialize as an empty object
   const [pagination, setPagination] = useState<PaginationState>({
     totalItems: 0,
     currentPage: 1,
@@ -110,6 +112,7 @@ export default function DonorsPage() {
     if (activeFilters.city) queryParams.append('city', activeFilters.city);
     if (activeFilters.district) queryParams.append('district', activeFilters.district);
     if (activeFilters.availability) queryParams.append('availability', activeFilters.availability);
+    if (activeFilters.name) queryParams.append('name', activeFilters.name);
 
     queryParams.append('page', pagination.currentPage.toString());
     queryParams.append('limit', pagination.itemsPerPage.toString());
@@ -173,7 +176,7 @@ export default function DonorsPage() {
         </pre> */}
       </div>
 
-       {/* Donors Table Section - Updated */}
+      {/* Donors Table Section - Updated */}
       {isLoading && (
         <div className="text-center py-10">
           <p className="text-lg text-indigo-600">Loading donors...</p>
@@ -206,14 +209,14 @@ export default function DonorsPage() {
 
       {/* Pagination Controls - Updated */}
       {!isLoading && !error && donors.length > 0 && pagination.totalPages > 1 && (
-         <div className="mt-8"> {/* Removed flex justify-center, handled by component */}
-            <PaginationControls
-                currentPage={pagination.currentPage}
-                totalPages={pagination.totalPages}
-                onPageChange={handlePageChange}
-                isLoading={isLoading} // Pass isLoading to disable controls during fetch
-            />
-         </div>
+        <div className="mt-8"> {/* Removed flex justify-center, handled by component */}
+          <PaginationControls
+            currentPage={pagination.currentPage}
+            totalPages={pagination.totalPages}
+            onPageChange={handlePageChange}
+            isLoading={isLoading} // Pass isLoading to disable controls during fetch
+          />
+        </div>
       )}
     </div>
   );
