@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
@@ -18,19 +19,8 @@ const EXPECTED_HEADERS = [
   "campus", // Name of the campus
   "group", // Name of the social group
   "isAvailable", // Optional: 'TRUE'/'FALSE', 'YES'/'NO', '1'/'0'. Defaults to true if missing/invalid.
+  "tagline",
 ];
-
-// // Define valid BloodGroup values explicitly based on your schema enum
-// const VALID_BLOOD_GROUPS: Prisma.BloodGroup[] = [
-//   "A_POSITIVE",
-//   "A_NEGATIVE",
-//   "B_POSITIVE",
-//   "B_NEGATIVE",
-//   "AB_POSITIVE",
-//   "AB_NEGATIVE",
-//   "O_POSITIVE",
-//   "O_NEGATIVE",
-// ];
 
 // Helper function to normalize and validate blood group input
 function parseBloodGroup(input: string | undefined | null): BloodGroup | null {
@@ -95,7 +85,6 @@ export async function POST(request: Request) {
     }
 
     fileContent = await file.text();
-    // console.log(`Received file: ${file.name}, Size: ${file.size} bytes`);
   } catch (error) {
     console.error("Error reading file:", error);
     return NextResponse.json(
@@ -227,12 +216,13 @@ export async function POST(request: Request) {
         name: cRow.name.trim(),
         bloodGroup: bloodGroup,
         contactNumber: cRow.contactNumber.trim(),
-        email: cRow.email?.trim() || null,
+        email: cRow.email?.trim() ?? null,
         district: cRow.district.trim(),
         city: cRow.city.trim(),
         isAvailable: isAvailable,
         campusId: campusId,
         groupId: groupId,
+        tagline: cRow.tagline?.trim() ?? null,
       });
     } catch (dbError: any) {
       errors.push({

@@ -100,23 +100,25 @@ export default function DonorProfilePage() {
 			const response = await fetch('/api/user/profile/donor');
 			if (response.ok) {
 				const data = await response.json();
+
 				setProfileData({
 					id: data.id,
 					name: data.name,
 					bloodGroup: data.bloodGroup,
 					contactNumber: data.contactNumber,
-					email: data.email || '',
+					email: data.email ?? '',
 					district: data.district,
 					city: data.city,
 					campusId: data.campus?.id ?? '', // Handle potentially null campus/group
 					groupId: data.group?.id ?? '',   // if profile was created before these were mandatory
 					isAvailable: data.isAvailable,
+					tagline: data.tagline ?? '',
 				});
 				setMode('edit');
 			} else if (response.status === 404) {
 				setProfileData({
-					name: session.user.name || '',
-					email: session.user.email || '',
+					name: session.user.name ?? '',
+					email: session.user.email ?? '',
 					bloodGroup: '', contactNumber: '', district: '', city: '',
 					campusId: '', groupId: '', isAvailable: true,
 				});
