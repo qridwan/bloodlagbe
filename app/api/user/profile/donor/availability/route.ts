@@ -20,7 +20,10 @@ export async function PUT(request: Request) {
 
     // Validate input
     if (typeof isAvailable !== 'boolean') {
-      return NextResponse.json({ message: 'Invalid input: "isAvailable" must be a boolean (true or false).' }, { status: 400 });
+      return NextResponse.json(
+        { message: 'Invalid input: "isAvailable" must be a boolean (true or false).' },
+        { status: 400 }
+      );
     }
 
     // Find the donor profile linked to the logged-in user
@@ -28,11 +31,14 @@ export async function PUT(request: Request) {
       where: {
         userId: session.user.id,
       },
-      select: { id: true } // We only need to know if it exists to update it
+      select: { id: true }, // We only need to know if it exists to update it
     });
 
     if (!existingDonorProfile) {
-      return NextResponse.json({ message: 'Donor profile not found. Please create a profile first.' }, { status: 404 });
+      return NextResponse.json(
+        { message: 'Donor profile not found. Please create a profile first.' },
+        { status: 404 }
+      );
     }
 
     // Update the availability status
@@ -48,16 +54,18 @@ export async function PUT(request: Request) {
         id: true,
         isAvailable: true,
         updatedAt: true, // Good to see when it was last updated
-      }
+      },
     });
 
     // await prisma.$disconnect(); // Disconnect in finally
     return NextResponse.json(updatedDonorProfile, { status: 200 });
-
   } catch (error) {
-    console.error("Error updating donor availability:", error);
+    console.error('Error updating donor availability:', error);
     // await prisma.$disconnect(); // Disconnect in finally
-    return NextResponse.json({ message: "Failed to update availability. Please try again." }, { status: 500 });
+    return NextResponse.json(
+      { message: 'Failed to update availability. Please try again.' },
+      { status: 500 }
+    );
   } finally {
     await prisma.$disconnect();
   }

@@ -25,10 +25,14 @@ interface Group {
 // This should match Prisma.BloodGroup but defined here for client-side use
 // Or import directly from Prisma if you set up path aliases for shared types (more advanced)
 type BloodGroup =
-  | 'A_POSITIVE' | 'A_NEGATIVE'
-  | 'B_POSITIVE' | 'B_NEGATIVE'
-  | 'AB_POSITIVE' | 'AB_NEGATIVE'
-  | 'O_POSITIVE' | 'O_NEGATIVE';
+  | 'A_POSITIVE'
+  | 'A_NEGATIVE'
+  | 'B_POSITIVE'
+  | 'B_NEGATIVE'
+  | 'AB_POSITIVE'
+  | 'AB_NEGATIVE'
+  | 'O_POSITIVE'
+  | 'O_NEGATIVE';
 
 interface Donor {
   id: string;
@@ -39,9 +43,9 @@ interface Donor {
   district: string;
   city: string;
   isAvailable: boolean;
-  campus: Campus;        // Included from relation
-  group: Group;          // Included from relation
-  updatedAt: string;     // Or Date, depending on how you want to handle it
+  campus: Campus; // Included from relation
+  group: Group; // Included from relation
+  updatedAt: string; // Or Date, depending on how you want to handle it
 }
 
 interface FilterOptions {
@@ -92,13 +96,12 @@ export default function DonorsPage() {
         const data = await response.json();
         setFilterOptions(data);
       } catch (err: any) {
-        console.error("Error fetching filter options:", err);
+        console.error('Error fetching filter options:', err);
         // setError('Could not load filter options. Please try refreshing.'); // Optional: specific error for options
       }
     };
     fetchOptions();
   }, []);
-
 
   // --- Fetch Donors Data ---
   const fetchDonors = useCallback(async () => {
@@ -120,14 +123,16 @@ export default function DonorsPage() {
     try {
       const response = await fetch(`/api/donors?${queryParams.toString()}`);
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Failed to fetch donor data' }));
+        const errorData = await response
+          .json()
+          .catch(() => ({ message: 'Failed to fetch donor data' }));
         throw new Error(errorData.message || 'Failed to fetch donor data');
       }
       const data = await response.json();
       setDonors(data.donors);
       setPagination(data.pagination);
     } catch (err: any) {
-      console.error("Error fetching donors:", err);
+      console.error('Error fetching donors:', err);
       setError(err.message || 'Could not load donor data. Please try again.');
       setDonors([]); // Clear donors on error
     } finally {
@@ -141,15 +146,14 @@ export default function DonorsPage() {
 
   // --- Handler for Filter Changes ---
   const handleFilterChange = (newFilters: Partial<ActiveFilters>) => {
-    setActiveFilters(prev => ({ ...prev, ...newFilters }));
-    setPagination(prev => ({ ...prev, currentPage: 1 })); // Reset to first page on filter change
+    setActiveFilters((prev) => ({ ...prev, ...newFilters }));
+    setPagination((prev) => ({ ...prev, currentPage: 1 })); // Reset to first page on filter change
   };
 
   // --- Handler for Page Changes ---
   const handlePageChange = (newPage: number) => {
-    setPagination(prev => ({ ...prev, currentPage: newPage }));
+    setPagination((prev) => ({ ...prev, currentPage: newPage }));
   };
-
 
   // --- Render Logic ---
   return (
@@ -209,7 +213,9 @@ export default function DonorsPage() {
 
       {/* Pagination Controls - Updated */}
       {!isLoading && !error && donors.length > 0 && pagination.totalPages > 1 && (
-        <div className="mt-8"> {/* Removed flex justify-center, handled by component */}
+        <div className="mt-8">
+          {' '}
+          {/* Removed flex justify-center, handled by component */}
           <PaginationControls
             currentPage={pagination.currentPage}
             totalPages={pagination.totalPages}

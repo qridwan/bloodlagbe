@@ -1,35 +1,31 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { PrismaClient, Prisma, BloodGroup } from "@prisma/client";
-import Papa from "papaparse";
-import { convertKeysToCamel, convertToCamelCase } from "@/utils/convert";
+import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { PrismaClient, Prisma, BloodGroup } from '@prisma/client';
+import Papa from 'papaparse';
+import { convertKeysToCamel, convertToCamelCase } from '@/utils/convert';
 
 const prisma = new PrismaClient();
 
 // Define the expected CSV headers (adjust to your predefined format)
 const EXPECTED_HEADERS = [
-  "name",
-  "bloodGroup",
-  "contactNumber",
-  "email", // Optional email specific to donor
-  "district",
-  "city",
-  "campus", // Name of the campus
-  "group", // Name of the social group
-  "isAvailable", // Optional: 'TRUE'/'FALSE', 'YES'/'NO', '1'/'0'. Defaults to true if missing/invalid.
-  "tagline",
+  'name',
+  'bloodGroup',
+  'contactNumber',
+  'email', // Optional email specific to donor
+  'district',
+  'city',
+  'campus', // Name of the campus
+  'group', // Name of the social group
+  'isAvailable', // Optional: 'TRUE'/'FALSE', 'YES'/'NO', '1'/'0'. Defaults to true if missing/invalid.
+  'tagline',
 ];
 
 // Helper function to normalize and validate blood group input
 function parseBloodGroup(input: string | undefined | null): BloodGroup | null {
   if (!input) return null;
-  const upperInput = input
-    .trim()
-    .toUpperCase()
-    .replace("+", "_POSITIVE")
-    .replace("-", "_NEGATIVE");
+  const upperInput = input.trim().toUpperCase().replace('+', '_POSITIVE').replace('-', '_NEGATIVE');
   if (Object.values(BloodGroup).includes(upperInput as BloodGroup)) {
     return upperInput as BloodGroup;
   }
@@ -41,10 +37,10 @@ function parseBloodGroup(input: string | undefined | null): BloodGroup | null {
 function parseAvailability(input: string | undefined | null): boolean {
   if (!input) return true; // Default to available if missing
   const lowerInput = input.trim().toLowerCase();
-  if (["true", "yes", "1"].includes(lowerInput)) {
+  if (['true', 'yes', '1'].includes(lowerInput)) {
     return true;
   }
-  if (["false", "no", "0"].includes(lowerInput)) {
+  if (['false', 'no', '0'].includes(lowerInput)) {
     return false;
   }
   return true; // Default to available for unrecognized values
@@ -56,41 +52,32 @@ export async function POST(request: Request) {
 
   // Check if user is logged in and is an Admin
   // Note: Ensure your session callback in next-auth config adds the role to the session object
-  if (!session?.user || session.user.role !== "ADMIN") {
-    console.warn(
-      "Unauthorized upload attempt by:",
-      session?.user?.email ?? "Unauthenticated user"
-    );
-    return NextResponse.json({ message: "Unauthorized" }, { status: 403 }); // Forbidden
+  if (!session?.user || session.user.role !== 'ADMIN') {
+    console.warn('Unauthorized upload attempt by:', session?.user?.email ?? 'Unauthenticated user');
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 403 }); // Forbidden
   }
   // 2. --- File Handling & Parsing ---
   let fileContent: string;
   try {
     const formData = await request.formData();
-    const file = formData.get("donorFile") as File | null; // 'donorFile' is the name attribute of your file input
+    const file = formData.get('donorFile') as File | null; // 'donorFile' is the name attribute of your file input
 
     if (!file) {
-      return NextResponse.json(
-        { message: "No file uploaded" },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: 'No file uploaded' }, { status: 400 });
     }
 
     // Basic check for CSV MIME type (can be improved)
-    if (file.type !== "text/csv" && !file.name.toLowerCase().endsWith(".csv")) {
+    if (file.type !== 'text/csv' && !file.name.toLowerCase().endsWith('.csv')) {
       return NextResponse.json(
-        { message: "Invalid file type. Please upload a CSV file." },
+        { message: 'Invalid file type. Please upload a CSV file.' },
         { status: 400 }
       );
     }
 
     fileContent = await file.text();
   } catch (error) {
-    console.error("Error reading file:", error);
-    return NextResponse.json(
-      { message: "Error processing file upload" },
-      { status: 400 }
-    );
+    console.error('Error reading file:', error);
+    return NextResponse.json({ message: 'Error processing file upload' }, { status: 400 });
   }
 
   // 3. --- CSV Parsing ---
@@ -103,31 +90,24 @@ export async function POST(request: Request) {
     });
 
     if (parseResult.errors.length > 0) {
-      console.error("CSV Parsing Errors:", parseResult.errors);
+      console.error('CSV Parsing Errors:', parseResult.errors);
       // Provide more specific error if possible
       return NextResponse.json(
-        { message: "Error parsing CSV file.", errors: parseResult.errors },
+        { message: 'Error parsing CSV file.', errors: parseResult.errors },
         { status: 400 }
       );
     }
 
     // Validate headers (optional but recommended)
-    parseResult.meta.fields = parseResult.meta.fields?.map((hd) =>
-      convertToCamelCase(hd)
-    );
+    parseResult.meta.fields = parseResult.meta.fields?.map((hd) => convertToCamelCase(hd));
     const headers = parseResult.meta.fields;
     console.log({ headers });
     if (!headers || !EXPECTED_HEADERS.every((h) => headers.includes(h))) {
-      console.warn(
-        "CSV Headers mismatch. Expected:",
-        EXPECTED_HEADERS,
-        "Got:",
-        headers
-      );
+      console.warn('CSV Headers mismatch. Expected:', EXPECTED_HEADERS, 'Got:', headers);
       return NextResponse.json(
         {
           message: `CSV headers do not match expected format. Expected headers: ${EXPECTED_HEADERS.join(
-            ", "
+            ', '
           )}`,
         },
         { status: 400 }
@@ -136,11 +116,8 @@ export async function POST(request: Request) {
 
     console.log(`Parsed ${parseResult.data.length} rows from CSV.`);
   } catch (error) {
-    console.error("CSV Parsing Failed:", error);
-    return NextResponse.json(
-      { message: "Failed to parse CSV data" },
-      { status: 500 }
-    );
+    console.error('CSV Parsing Failed:', error);
+    return NextResponse.json({ message: 'Failed to parse CSV data' }, { status: 500 });
   }
 
   // 4. --- Data Validation and Preparation ---
@@ -165,7 +142,7 @@ export async function POST(request: Request) {
     ) {
       errors.push({
         row: rowNumber,
-        message: "Missing required fields in row.",
+        message: 'Missing required fields in row.',
         data: cRow,
       });
       continue;
@@ -245,7 +222,7 @@ export async function POST(request: Request) {
       createdCount = result.count;
       console.log(`Successfully created ${createdCount} donor records.`);
     } catch (error: any) {
-      console.error("Error inserting donors:", error);
+      console.error('Error inserting donors:', error);
       // If createMany fails entirely (e.g., constraint violation without skipDuplicates)
       return NextResponse.json(
         { message: `Database error during bulk insert: ${error.message}` },

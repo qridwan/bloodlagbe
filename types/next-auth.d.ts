@@ -1,15 +1,15 @@
 // src/next-auth.d.ts  (or types/next-auth.d.ts)
 
-import NextAuth, { DefaultSession, DefaultUser } from "next-auth";
-import { JWT, DefaultJWT } from "next-auth/jwt";
+import NextAuth, { DefaultSession, DefaultUser } from 'next-auth';
+import { JWT, DefaultJWT } from 'next-auth/jwt';
 
 // Import your UserRole enum if you have it defined in Prisma schema and want to use it
 // Assuming your Prisma UserRole enum is available (e.g. via Prisma.UserRole)
 // If not, you can use a string literal type e.g. "USER" | "ADMIN"
 // For simplicity, let's use string for now if UserRole isn't easily importable here.
-type UserRole = "USER" | "ADMIN"; // Or import { UserRole } from "@prisma/client" if accessible
+type UserRole = 'USER' | 'ADMIN'; // Or import { UserRole } from "@prisma/client" if accessible
 
-declare module "next-auth" {
+declare module 'next-auth' {
   /**
    * Returned by `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
    */
@@ -18,8 +18,8 @@ declare module "next-auth" {
       /** The user's database id. */
       id: string;
       /** The user's role. */
-      role?:  UserRole
-    } & DefaultSession["user"]; // Extends the default user properties (name, email, image)
+      role?: UserRole;
+    } & DefaultSession['user']; // Extends the default user properties (name, email, image)
   }
 
   /**
@@ -31,6 +31,6 @@ declare module "next-auth" {
     /** The user's database id. */
     id: string;
     /** The user's role. */
-    role?: UserRole
+    role?: UserRole;
   }
 }

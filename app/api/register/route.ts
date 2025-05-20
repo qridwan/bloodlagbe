@@ -50,12 +50,11 @@ export async function POST(request: Request) {
         email: true,
         role: true,
         createdAt: true,
-      }
+      },
     });
 
     console.log(`User created successfully: ${newUser.email}`);
     return NextResponse.json(newUser, { status: 201 }); // Created
-
   } catch (error) {
     console.error('Registration Error:', error);
     // Generic error for security
@@ -65,6 +64,6 @@ export async function POST(request: Request) {
     );
   } finally {
     // Ensure Prisma Client disconnects after the request (optional but good practice)
-     await prisma.$disconnect();
+    await prisma.$disconnect();
   }
 }

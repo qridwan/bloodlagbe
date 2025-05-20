@@ -1,16 +1,16 @@
-name,blood_group,contact_number,email,district,city,campus,group,is_available
-Rahim Sheikh,O_POSITIVE,01711223344,rahim.s@example.com,Dhaka,Gulshan,University of Dhaka,Badhan,TRUE
-Fatima Ahmed,A_POSITIVE,01822334455,fatima.a@example.com,Chittagong,Agrabad,Chittagong University,Red Crescent Society BD,TRUE
-Kamal Hossain,B_POSITIVE,01933445566,,Sylhet,Zindabazar,MC College Sylhet,Quantum Foundation,FALSE
-Ayesha Khanam,AB_NEGATIVE,01544556677,ayesha.k@example.com,Khulna,Khulna City,Khulna University,Local Youth Club,1
-Jamal Uddin,O_NEGATIVE,01655667788,jamal.u@example.com,Rajshahi,Rajshahi Sadar,Rajshahi University,Badhan,YES
-Nadia Islam,A_NEGATIVE,01366778899,,Barisal,Barisal City,BM College,University Volunteers,0
-Rizwan Chowdhury,B_NEGATIVE,01477889900,rizwan.c@example.com,Comilla,Comilla Town,Comilla Victoria College,Lions Club Comilla,NO
-Sadia Rahman,AB_POSITIVE,01788990011,sadia.r@example.com,Gazipur,Gazipur Sadar,Islamic University of Technology (IUT),Quantum Foundation,TRUE
-Mehedi Hasan,O_POSITIVE,01999001122,,Mymensingh,Mymensingh City,Bangladesh Agricultural University,Badhan,
-Faria Akter,A_POSITIVE,01500112233,faria.akter@example.com,Narayanganj,Narayanganj City,Narayanganj College,Red Crescent Society BD,TRUE
-Tanvir Mahmud,B_POSITIVE,01811223300,tanvir.m@example.com,Dhaka,Dhanmondi,North South University,NSU Blood Club,FALSE
-Sumaiya Begum,O_POSITIVE,01622334411,,Chittagong,Pahartali,Premier University,Rotaract Club Chittagong,1
-Arifur Rahman,AB_POSITIVE,01333445522,arifur@example.com,Sylhet,Amberkhana,Shahjalal University of Science and Technology,Badhan (SUST Unit),YES
-Zoya Farhin,A_NEGATIVE,01944556633,zoya.f@example.com,Dhaka,Mirpur,Mirpur College,Local Youth Club,
-Imran Ali,B_NEGATIVE,01755667744,,Rajshahi,Motihar,Rajshahi College,Quantum Foundation,TRUE
+name,blood_group,contact_number,email,district,city,campus,group,is_available,tagline
+Rahim Sheikh,O_POSITIVE,01711223344,rahim.s@example.com,Dhaka,Gulshan,University of Dhaka,Badhan,TRUE,1st Batch
+Fatima Ahmed,A_POSITIVE,01822334455,fatima.a@example.com,Chittagong,Agrabad,Chittagong University,Red Crescent Society BD,TRUE,1st Batch
+Kamal Hossain,B_POSITIVE,01933445566,,Sylhet,Zindabazar,MC College Sylhet,Quantum Foundation,FALSE,1st Batch
+Ayesha Khanam,AB_NEGATIVE,01544556677,ayesha.k@example.com,Khulna,Khulna City,Khulna University,Local Youth Club,TRUE,1st Batch
+Jamal Uddin,O_NEGATIVE,01655667788,jamal.u@example.com,Rajshahi,Rajshahi Sadar,Rajshahi University,Badhan,TRUE,1st Batch
+Nadia Islam,A_NEGATIVE,01366778899,,Barisal,Barisal City,BM College,University Volunteers,TRUE,1st Batch
+Rizwan Chowdhury,B_NEGATIVE,01477889900,rizwan.c@example.com,Comilla,Comilla Town,Comilla Victoria College,Lions Club Comilla,TRUE,1st Batch
+Sadia Rahman,AB_POSITIVE,01788990011,sadia.r@example.com,Gazipur,Gazipur Sadar,Islamic University of Technology (IUT),Quantum Foundation,TRUE,1st Batch
+Mehedi Hasan,O_POSITIVE,01999001122,,Mymensingh,Mymensingh City,Bangladesh Agricultural University,Badhan,TRUE,1st Batch
+Faria Akter,A_POSITIVE,01500112233,faria.akter@example.com,Narayanganj,Narayanganj City,Narayanganj College,Red Crescent Society BD,TRUE,1st Batch
+Tanvir Mahmud,B_POSITIVE,01811223300,tanvir.m@example.com,Dhaka,Dhanmondi,North South University,NSU Blood Club,FALSE,1st Batch
+Sumaiya Begum,O_POSITIVE,01622334411,,Chittagong,Pahartali,Premier University,Rotaract Club Chittagong,TRUE,1st Batch
+Arifur Rahman,AB_POSITIVE,01333445522,arifur@example.com,Sylhet,Amberkhana,Shahjalal University of Science and Technology,Badhan (SUST Unit),TRUE,1st Batch
+Zoya Farhin,A_NEGATIVE,01944556633,zoya.f@example.com,Dhaka,Mirpur,Mirpur College,Local Youth Club,TRUE,1st Batch
+Imran Ali,B_NEGATIVE,01755667744,,Rajshahi,Motihar,Rajshahi College,Quantum Foundation,TRUE,1st Batch

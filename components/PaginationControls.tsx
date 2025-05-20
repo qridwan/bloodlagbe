@@ -38,10 +38,9 @@ export default function PaginationControls({
   let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
 
   // Adjust startPage if endPage is at the limit and we can show more pages at the beginning
-  if (endPage === totalPages && (endPage - startPage + 1) < maxPagesToShow) {
+  if (endPage === totalPages && endPage - startPage + 1 < maxPagesToShow) {
     startPage = Math.max(1, endPage - maxPagesToShow + 1);
   }
-
 
   for (let i = startPage; i <= endPage; i++) {
     pageNumbers.push(i);
@@ -89,7 +88,7 @@ export default function PaginationControls({
           </button>
         ))}
 
-         {endPage < totalPages && (
+        {endPage < totalPages && (
           <>
             {endPage < totalPages - 1 && <span className="px-4 py-2 text-gray-500">...</span>}
             <button
@@ -102,9 +101,9 @@ export default function PaginationControls({
           </>
         )}
       </div>
-       <div className="md:hidden flex-1 flex justify-center text-gray-700">
-         Page {currentPage} of {totalPages}
-       </div>
+      <div className="md:hidden flex-1 flex justify-center text-gray-700">
+        Page {currentPage} of {totalPages}
+      </div>
 
       <div className="flex-1 flex justify-end">
         <button

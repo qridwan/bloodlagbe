@@ -12,11 +12,11 @@ export default function RegisterPage() {
           </h2>
         </div>
         <RegisterForm />
-         <p className="mt-2 text-center text-sm text-gray-600">
-            Already have an account?{' '}
-            <Link href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
-                Sign In
-            </Link>
+        <p className="mt-2 text-center text-sm text-gray-600">
+          Already have an account?{' '}
+          <Link href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
+            Sign In
+          </Link>
         </p>
       </div>
     </div>
