@@ -30,9 +30,7 @@ export default function AvailabilityToggle({
 
   return (
     <div className="flex items-center space-x-4 p-4 bg-white rounded-lg shadow">
-      <span className="text-lg font-medium text-gray-700">
-        My Donation Availability:
-      </span>
+      <span className="text-lg font-medium text-gray-700">My Donation Availability:</span>
       <button
         onClick={handleToggle}
         disabled={isSaving}
@@ -49,12 +47,8 @@ export default function AvailabilityToggle({
           }`}
         />
       </button>
-      <span
-        className={`text-lg font-semibold ${
-          isAvailable ? 'text-green-600' : 'text-red-600'
-        }`}
-      >
-        {isSaving ? 'Updating...' : (isAvailable ? 'Available' : 'Unavailable')}
+      <span className={`text-lg font-semibold ${isAvailable ? 'text-green-600' : 'text-red-600'}`}>
+        {isSaving ? 'Updating...' : isAvailable ? 'Available' : 'Unavailable'}
       </span>
     </div>
   );

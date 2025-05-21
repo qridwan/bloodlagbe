@@ -18,17 +18,21 @@ export async function GET() {
 
     // Blood groups are from an enum, so we can define them directly
     // Or, if you prefer, you can derive them from Prisma.BloodGroup values
-    const bloodGroups = Object.values(BloodGroup).map(bg => ({ id: bg, name: bg.replace('_POSITIVE', '+').replace('_NEGATIVE', '-') }));
-
+    const bloodGroups = Object.values(BloodGroup).map((bg) => ({
+      id: bg,
+      name: bg.replace('_POSITIVE', '+').replace('_NEGATIVE', '-'),
+    }));
 
     await prisma.$disconnect();
 
-    return NextResponse.json({
-      campuses,
-      groups,
-      bloodGroups,
-    }, { status: 200 });
-
+    return NextResponse.json(
+      {
+        campuses,
+        groups,
+        bloodGroups,
+      },
+      { status: 200 }
+    );
   } catch (error) {
     console.error('Error fetching filter options:', error);
     await prisma.$disconnect();

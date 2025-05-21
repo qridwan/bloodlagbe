@@ -5,11 +5,13 @@ export function convertToCamelCase(str: string): string {
   return normalizedStr.replace(/_([a-z])/g, (match, letter) => letter.toUpperCase());
 }
 
-
 export function convertKeysToCamel(obj: Record<string, any>): Record<string, any> {
-  return Object.entries(obj).reduce((acc, [key, value]) => {
-    const newKey = convertToCamelCase(key);
-    acc[newKey] = value;
-    return acc;
-  }, {} as Record<string, any>);
+  return Object.entries(obj).reduce(
+    (acc, [key, value]) => {
+      const newKey = convertToCamelCase(key);
+      acc[newKey] = value;
+      return acc;
+    },
+    {} as Record<string, any>
+  );
 }

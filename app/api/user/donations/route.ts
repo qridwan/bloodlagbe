@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"; // Adjust path as needed
-import { PrismaClient } from "@prisma/client";
+import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route'; // Adjust path as needed
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -12,10 +12,7 @@ export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
-    return NextResponse.json(
-      { message: "Unauthorized. Please log in." },
-      { status: 401 }
-    );
+    return NextResponse.json({ message: 'Unauthorized. Please log in.' }, { status: 401 });
   }
 
   try {
@@ -24,7 +21,7 @@ export async function POST(request: Request) {
 
     if (!donationDate) {
       return NextResponse.json(
-        { message: "Missing required field: donationDate" },
+        { message: 'Missing required field: donationDate' },
         { status: 400 }
       );
     }
@@ -33,11 +30,11 @@ export async function POST(request: Request) {
     try {
       parsedDonationDate = new Date(donationDate);
       if (isNaN(parsedDonationDate.getTime())) {
-        throw new Error("Invalid date format");
+        throw new Error('Invalid date format');
       }
       if (parsedDonationDate > new Date()) {
         return NextResponse.json(
-          { message: "Donation date cannot be in the future." },
+          { message: 'Donation date cannot be in the future.' },
           { status: 400 }
         );
       }
@@ -46,7 +43,7 @@ export async function POST(request: Request) {
         {
           message:
             e.message ??
-            "Invalid donationDate format. Please use ISO 8601 format (e.g., YYYY-MM-DD).",
+            'Invalid donationDate format. Please use ISO 8601 format (e.g., YYYY-MM-DD).',
         },
         { status: 400 }
       );
@@ -60,8 +57,7 @@ export async function POST(request: Request) {
     if (!donorProfile) {
       return NextResponse.json(
         {
-          message:
-            "Donor profile not found. You must have a donor profile to record donations.",
+          message: 'Donor profile not found. You must have a donor profile to record donations.',
         },
         { status: 404 }
       );
@@ -77,9 +73,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json(newDonation, { status: 201 });
   } catch (error: any) {
-    console.error("Error recording donation:", error);
+    console.error('Error recording donation:', error);
     return NextResponse.json(
-      { message: "Failed to record donation. Please try again." },
+      { message: 'Failed to record donation. Please try again.' },
       { status: 500 }
     );
   } finally {
@@ -95,10 +91,7 @@ export async function GET() {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
-    return NextResponse.json(
-      { message: "Unauthorized. Please log in." },
-      { status: 401 }
-    );
+    return NextResponse.json({ message: 'Unauthorized. Please log in.' }, { status: 401 });
   }
 
   try {
@@ -122,7 +115,7 @@ export async function GET() {
         donorId: donorProfile.id,
       },
       orderBy: {
-        donationDate: "desc", // Show most recent donations first
+        donationDate: 'desc', // Show most recent donations first
       },
       // Optionally, select specific fields if you don't need the whole Donation object
       // select: { id: true, donationDate: true, location: true, createdAt: true }
@@ -131,10 +124,10 @@ export async function GET() {
     await prisma.$disconnect();
     return NextResponse.json(donations, { status: 200 });
   } catch (error: any) {
-    console.error("Error fetching donation history:", error);
+    console.error('Error fetching donation history:', error);
     await prisma.$disconnect();
     return NextResponse.json(
-      { message: "Failed to fetch donation history. Please try again." },
+      { message: 'Failed to fetch donation history. Please try again.' },
       { status: 500 }
     );
   } finally {

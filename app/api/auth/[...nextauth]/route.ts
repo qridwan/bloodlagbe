@@ -2,7 +2,7 @@ import NextAuth, { type NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcrypt'; 
+import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
@@ -40,17 +40,14 @@ export const authOptions: NextAuthOptions = {
         // IMPORTANT: Check if the user has a hashed password set.
         // Users created via OAuth might not have one initially.
         if (!user.hashedPassword) {
-            console.error('User exists but has no password set (maybe OAuth user?)');
-            // Decide how to handle this: maybe prompt them to set a password?
-            // For now, we deny login via credentials.
-            return null;
+          console.error('User exists but has no password set (maybe OAuth user?)');
+          // Decide how to handle this: maybe prompt them to set a password?
+          // For now, we deny login via credentials.
+          return null;
         }
 
         // Validate password
-        const isValidPassword = await bcrypt.compare(
-          credentials.password,
-          user.hashedPassword
-        );
+        const isValidPassword = await bcrypt.compare(credentials.password, user.hashedPassword);
 
         if (!isValidPassword) {
           console.error('Invalid password for user:', credentials.email);
@@ -61,11 +58,11 @@ export const authOptions: NextAuthOptions = {
         // Return the user object if credentials are valid
         // Only return necessary fields, avoid sending sensitive data like password hash
         return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role, // Include role for authorization checks
-            image: user.image,
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role, // Include role for authorization checks
+          image: user.image,
         };
       },
     }),
@@ -91,7 +88,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.sub ?? ''; // Add user ID from the JWT's sub claim
         // Fetch the user role from the database based on the token's sub (userId)
         // This ensures the role is always up-to-date, even if changed after login.
-        const userFromDb = await prisma.user.findUnique({ where: { id: token.sub }});
+        const userFromDb = await prisma.user.findUnique({ where: { id: token.sub } });
         session.user.role = userFromDb?.role; // Add user role
       }
       return session;
