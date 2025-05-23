@@ -66,7 +66,7 @@ export default function Navbar() {
                   )}
                 </>
               )}
-              </div>
+            </div>
           </div>
           <div className="hidden md:block">
             <div className="ml-4 flex items-center md:ml-6">

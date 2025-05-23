@@ -27,7 +27,6 @@ export async function GET() {
     });
 
     return NextResponse.json(campuses, { status: 200 });
-
   } catch (error) {
     console.error('Error fetching campuses:', error);
     return NextResponse.json({ message: 'Failed to fetch campuses' }, { status: 500 });
@@ -49,7 +48,10 @@ export async function POST(request: Request) {
 
     // Validate input
     if (!name || typeof name !== 'string' || name.trim() === '') {
-      return NextResponse.json({ message: 'Campus name is required and cannot be empty.' }, { status: 400 });
+      return NextResponse.json(
+        { message: 'Campus name is required and cannot be empty.' },
+        { status: 400 }
+      );
     }
 
     const trimmedName = name.trim();
@@ -61,13 +63,16 @@ export async function POST(request: Request) {
     const existingCampus = await prisma.campus.findFirst({
       where: {
         name: {
-          equals: trimmedName
+          equals: trimmedName,
         },
       },
     });
 
     if (existingCampus) {
-      return NextResponse.json({ message: `Campus with name "${trimmedName}" already exists.` }, { status: 409 }); // 409 Conflict
+      return NextResponse.json(
+        { message: `Campus with name "${trimmedName}" already exists.` },
+        { status: 409 }
+      ); // 409 Conflict
     }
 
     // Create new campus
@@ -78,15 +83,20 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(newCampus, { status: 201 }); // 201 Created
-
   } catch (error: any) {
     console.error('Error creating campus:', error);
     // Handle Prisma's unique constraint violation error specifically if the above check fails for some reason (e.g. race condition or case sensitivity differences)
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
       // P2002 is the unique constraint violation code
-      return NextResponse.json({ message: 'A campus with this name already exists (database constraint).' }, { status: 409 });
+      return NextResponse.json(
+        { message: 'A campus with this name already exists (database constraint).' },
+        { status: 409 }
+      );
     }
-    return NextResponse.json({ message: 'Failed to create campus. Please try again.' }, { status: 500 });
+    return NextResponse.json(
+      { message: 'Failed to create campus. Please try again.' },
+      { status: 500 }
+    );
   } finally {
     await prisma.$disconnect();
   }

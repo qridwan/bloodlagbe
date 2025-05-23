@@ -27,7 +27,6 @@ export async function GET(request: Request) {
     });
 
     return NextResponse.json(groups, { status: 200 });
-
   } catch (error) {
     console.error('Error fetching groups:', error);
     return NextResponse.json({ message: 'Failed to fetch groups' }, { status: 500 });
@@ -48,7 +47,10 @@ export async function POST(request: Request) {
     const { name } = body;
 
     if (!name || typeof name !== 'string' || name.trim() === '') {
-      return NextResponse.json({ message: 'Group name is required and cannot be empty.' }, { status: 400 });
+      return NextResponse.json(
+        { message: 'Group name is required and cannot be empty.' },
+        { status: 400 }
+      );
     }
 
     const trimmedName = name.trim();
@@ -57,13 +59,16 @@ export async function POST(request: Request) {
     const existingGroup = await prisma.group.findFirst({
       where: {
         name: {
-          equals: trimmedName
+          equals: trimmedName,
         },
       },
     });
 
     if (existingGroup) {
-      return NextResponse.json({ message: `Group with name "${trimmedName}" already exists.` }, { status: 409 });
+      return NextResponse.json(
+        { message: `Group with name "${trimmedName}" already exists.` },
+        { status: 409 }
+      );
     }
 
     const newGroup = await prisma.group.create({
@@ -73,13 +78,18 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(newGroup, { status: 201 });
-
   } catch (error: any) {
     console.error('Error creating group:', error);
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-      return NextResponse.json({ message: 'A group with this name already exists (database constraint).' }, { status: 409 });
+      return NextResponse.json(
+        { message: 'A group with this name already exists (database constraint).' },
+        { status: 409 }
+      );
     }
-    return NextResponse.json({ message: 'Failed to create group. Please try again.' }, { status: 500 });
+    return NextResponse.json(
+      { message: 'Failed to create group. Please try again.' },
+      { status: 500 }
+    );
   } finally {
     await prisma.$disconnect();
   }

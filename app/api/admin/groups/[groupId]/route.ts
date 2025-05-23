@@ -31,7 +31,10 @@ export async function PUT(request: Request, context: RouteContext) {
     const { name } = body;
 
     if (!name || typeof name !== 'string' || name.trim() === '') {
-      return NextResponse.json({ message: 'New group name is required and cannot be empty.' }, { status: 400 });
+      return NextResponse.json(
+        { message: 'New group name is required and cannot be empty.' },
+        { status: 400 }
+      );
     }
 
     const trimmedName = name.trim();
@@ -39,7 +42,7 @@ export async function PUT(request: Request, context: RouteContext) {
     const conflictingGroup = await prisma.group.findFirst({
       where: {
         name: {
-          equals: trimmedName
+          equals: trimmedName,
         },
         NOT: {
           id: groupId,
@@ -48,7 +51,10 @@ export async function PUT(request: Request, context: RouteContext) {
     });
 
     if (conflictingGroup) {
-      return NextResponse.json({ message: `Another group with the name "${trimmedName}" already exists.` }, { status: 409 });
+      return NextResponse.json(
+        { message: `Another group with the name "${trimmedName}" already exists.` },
+        { status: 409 }
+      );
     }
 
     const updatedGroup = await prisma.group.update({
@@ -57,15 +63,20 @@ export async function PUT(request: Request, context: RouteContext) {
     });
 
     return NextResponse.json(updatedGroup, { status: 200 });
-
   } catch (error: any) {
     console.error(`Error updating group ID ${groupId}:`, error);
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === 'P2025') {
-        return NextResponse.json({ message: `Group with ID ${groupId} not found.` }, { status: 404 });
+        return NextResponse.json(
+          { message: `Group with ID ${groupId} not found.` },
+          { status: 404 }
+        );
       }
       if (error.code === 'P2002') {
-         return NextResponse.json({ message: `A group with the name "${(await request.json()).name}" already exists.` }, { status: 409 });
+        return NextResponse.json(
+          { message: `A group with the name "${(await request.json()).name}" already exists.` },
+          { status: 409 }
+        );
       }
     }
     return NextResponse.json({ message: 'Failed to update group.' }, { status: 500 });
@@ -94,15 +105,26 @@ export async function DELETE(request: Request, context: RouteContext) {
     });
 
     return NextResponse.json({ message: 'Group deleted successfully.' }, { status: 200 });
-
   } catch (error: any) {
     console.error(`Error deleting group ID ${groupId}:`, error);
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === 'P2025') {
-        return NextResponse.json({ message: `Group with ID ${groupId} not found.` }, { status: 404 });
+        return NextResponse.json(
+          { message: `Group with ID ${groupId} not found.` },
+          { status: 404 }
+        );
       }
-      if (error.code === 'P2003' || (error.meta && (error.meta.cause as string)?.includes('foreign key constraint fails'))) {
-        return NextResponse.json({ message: 'Cannot delete group: It is currently associated with existing donor records. Please reassign or remove those donors first.' }, { status: 409 });
+      if (
+        error.code === 'P2003' ||
+        (error.meta && (error.meta.cause as string)?.includes('foreign key constraint fails'))
+      ) {
+        return NextResponse.json(
+          {
+            message:
+              'Cannot delete group: It is currently associated with existing donor records. Please reassign or remove those donors first.',
+          },
+          { status: 409 }
+        );
       }
     }
     return NextResponse.json({ message: 'Failed to delete group.' }, { status: 500 });

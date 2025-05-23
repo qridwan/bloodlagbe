@@ -47,7 +47,9 @@ export default function ManageCampusesPage() {
     try {
       const response = await fetch('/api/admin/campuses');
       if (!response.ok) {
-        const errData = await response.json().catch(() => ({ message: "Failed to fetch campuses" }));
+        const errData = await response
+          .json()
+          .catch(() => ({ message: 'Failed to fetch campuses' }));
         throw new Error(errData.message);
       }
       const data: Campus[] = await response.json();
@@ -94,7 +96,8 @@ export default function ManageCampusesPage() {
     setIsSubmitting(true);
     setFormError(null);
 
-    const url = modalMode === 'add' ? '/api/admin/campuses' : `/api/admin/campuses/${currentCampus?.id}`;
+    const url =
+      modalMode === 'add' ? '/api/admin/campuses' : `/api/admin/campuses/${currentCampus?.id}`;
     const method = modalMode === 'add' ? 'POST' : 'PUT';
 
     try {
@@ -117,7 +120,11 @@ export default function ManageCampusesPage() {
   };
 
   const handleDeleteCampus = async (campusId: string, campusName: string) => {
-    if (!window.confirm(`Are you sure you want to delete campus "${campusName}"? This action cannot be undone.`)) {
+    if (
+      !window.confirm(
+        `Are you sure you want to delete campus "${campusName}"? This action cannot be undone.`
+      )
+    ) {
       return;
     }
     // Use a specific loading state for delete if needed, or a general one
@@ -139,23 +146,32 @@ export default function ManageCampusesPage() {
     }
   };
 
-
-  if (isLoading && sessionStatus === 'authenticated' && !error) { // Initial load
-    return <div className="text-center p-10"><p className="text-lg animate-pulse text-sky-600">Loading Campuses...</p></div>;
+  if (isLoading && sessionStatus === 'authenticated' && !error) {
+    // Initial load
+    return (
+      <div className="text-center p-10">
+        <p className="text-lg animate-pulse text-sky-600">Loading Campuses...</p>
+      </div>
+    );
   }
 
   // Fallback for auth issues, though layout usually handles it
   if (sessionStatus === 'authenticated' && session?.user?.role !== 'ADMIN') {
-    return <div className="text-center p-10"><p className="text-xl text-red-600">Access Denied.</p></div>;
+    return (
+      <div className="text-center p-10">
+        <p className="text-xl text-red-600">Access Denied.</p>
+      </div>
+    );
   }
-
 
   return (
     <div className="space-y-6">
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-slate-800">Manage Campuses</h1>
-          <p className="text-slate-600 mt-1 text-sm">Add, edit, or delete campus/institution names.</p>
+          <p className="text-slate-600 mt-1 text-sm">
+            Add, edit, or delete campus/institution names.
+          </p>
         </div>
         <button
           onClick={() => openModal('add')}
@@ -174,9 +190,9 @@ export default function ManageCampusesPage() {
 
       {!isLoading && !error && campuses.length === 0 && (
         <div className="text-center py-10 bg-white p-6 rounded-lg shadow-md">
-            <Building2Icon className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-            <p className="text-xl text-gray-500">No campuses found.</p>
-            <p className="text-sm text-gray-400 mt-2">Click "Add New Campus" to get started.</p>
+          <Building2Icon className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+          <p className="text-xl text-gray-500">No campuses found.</p>
+          <p className="text-sm text-gray-400 mt-2">Click "Add New Campus" to get started.</p>
         </div>
       )}
 
@@ -186,16 +202,26 @@ export default function ManageCampusesPage() {
             <table className="min-w-full divide-y divide-slate-200">
               <thead className="bg-slate-100">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Campus Name</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Donors Linked</th>
-                  <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                    Campus Name
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                    Donors Linked
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-slate-200">
                 {campuses.map((campus) => (
                   <tr key={campus.id} className="hover:bg-sky-50/50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">{campus.name}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{campus._count?.donors ?? 0}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
+                      {campus.name}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                      {campus._count?.donors ?? 0}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-right space-x-2">
                       <button
                         onClick={() => openModal('edit', campus)}
@@ -230,7 +256,10 @@ export default function ManageCampusesPage() {
             </h2>
             <form onSubmit={handleFormSubmit} className="space-y-4">
               <div>
-                <label htmlFor="campusNameInput" className="block text-sm font-medium text-slate-700">
+                <label
+                  htmlFor="campusNameInput"
+                  className="block text-sm font-medium text-slate-700"
+                >
                   Campus Name <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -258,7 +287,13 @@ export default function ManageCampusesPage() {
                   disabled={isSubmitting}
                   className="px-4 py-2 text-sm font-medium text-white bg-sky-600 hover:bg-sky-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 disabled:bg-sky-300"
                 >
-                  {isSubmitting ? (modalMode === 'add' ? 'Adding...' : 'Saving...') : (modalMode === 'add' ? 'Add Campus' : 'Save Changes')}
+                  {isSubmitting
+                    ? modalMode === 'add'
+                      ? 'Adding...'
+                      : 'Saving...'
+                    : modalMode === 'add'
+                      ? 'Add Campus'
+                      : 'Save Changes'}
                 </button>
               </div>
             </form>

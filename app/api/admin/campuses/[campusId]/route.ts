@@ -31,7 +31,10 @@ export async function PUT(request: Request, context: RouteContext) {
     const { name } = body;
 
     if (!name || typeof name !== 'string' || name.trim() === '') {
-      return NextResponse.json({ message: 'New campus name is required and cannot be empty.' }, { status: 400 });
+      return NextResponse.json(
+        { message: 'New campus name is required and cannot be empty.' },
+        { status: 400 }
+      );
     }
 
     const trimmedName = name.trim();
@@ -49,7 +52,10 @@ export async function PUT(request: Request, context: RouteContext) {
     });
 
     if (conflictingCampus) {
-      return NextResponse.json({ message: `Another campus with the name "${trimmedName}" already exists.` }, { status: 409 }); // Conflict
+      return NextResponse.json(
+        { message: `Another campus with the name "${trimmedName}" already exists.` },
+        { status: 409 }
+      ); // Conflict
     }
 
     const updatedCampus = await prisma.campus.update({
@@ -58,15 +64,24 @@ export async function PUT(request: Request, context: RouteContext) {
     });
 
     return NextResponse.json(updatedCampus, { status: 200 });
-
   } catch (error: any) {
     console.error(`Error updating campus ID ${campusId}:`, error);
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === 'P2025') { // Record to update not found
-        return NextResponse.json({ message: `Campus with ID ${campusId} not found.` }, { status: 404 });
+      if (error.code === 'P2025') {
+        // Record to update not found
+        return NextResponse.json(
+          { message: `Campus with ID ${campusId} not found.` },
+          { status: 404 }
+        );
       }
-      if (error.code === 'P2002') { // Unique constraint failed (should be caught by the check above, but as a fallback)
-         return NextResponse.json({ message: `A campus with the name "${(await request.json()).name}" already exists (database constraint).` }, { status: 409 });
+      if (error.code === 'P2002') {
+        // Unique constraint failed (should be caught by the check above, but as a fallback)
+        return NextResponse.json(
+          {
+            message: `A campus with the name "${(await request.json()).name}" already exists (database constraint).`,
+          },
+          { status: 409 }
+        );
       }
     }
     return NextResponse.json({ message: 'Failed to update campus.' }, { status: 500 });
@@ -97,17 +112,29 @@ export async function DELETE(request: Request, context: RouteContext) {
     });
 
     return NextResponse.json({ message: 'Campus deleted successfully.' }, { status: 200 }); // Or 204 No Content
-
   } catch (error: any) {
     console.error(`Error deleting campus ID ${campusId}:`, error);
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === 'P2025') { // Record to delete not found
-        return NextResponse.json({ message: `Campus with ID ${campusId} not found.` }, { status: 404 });
+      if (error.code === 'P2025') {
+        // Record to delete not found
+        return NextResponse.json(
+          { message: `Campus with ID ${campusId} not found.` },
+          { status: 404 }
+        );
       }
-      if (error.code === 'P2003' || (error.meta && (error.meta.cause as string)?.includes('foreign key constraint fails'))) {
+      if (
+        error.code === 'P2003' ||
+        (error.meta && (error.meta.cause as string)?.includes('foreign key constraint fails'))
+      ) {
         // P2003: Foreign key constraint failed on the field
         // This means donors are still linked to this campus
-        return NextResponse.json({ message: 'Cannot delete campus: It is currently associated with existing donor records. Please reassign or remove those donors first.' }, { status: 409 }); // Conflict
+        return NextResponse.json(
+          {
+            message:
+              'Cannot delete campus: It is currently associated with existing donor records. Please reassign or remove those donors first.',
+          },
+          { status: 409 }
+        ); // Conflict
       }
     }
     return NextResponse.json({ message: 'Failed to delete campus.' }, { status: 500 });

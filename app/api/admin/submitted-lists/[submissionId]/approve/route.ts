@@ -58,7 +58,7 @@ export async function PUT(request: Request, context: RouteContext) {
 
   try {
     const body = await request.json();
-    const { adminNotes, donorDataJson: editedDonorDataJson } = body; 
+    const { adminNotes, donorDataJson: editedDonorDataJson } = body;
 
     // Transaction to ensure atomicity of submission status update and donor imports
     const result = await prisma.$transaction(async (tx) => {
@@ -78,11 +78,12 @@ export async function PUT(request: Request, context: RouteContext) {
         throw new Error('INVALID_DONOR_DATA');
       }
 
-          // Use editedDonorDataJson from request body if provided, otherwise fallback to stored one
-      const donorListToProcess = editedDonorDataJson && Array.isArray(editedDonorDataJson) && editedDonorDataJson.length > 0
-                               ? editedDonorDataJson
-                               : submission.donorDataJson;
-    const finalDonorList = donorListToProcess as Array<Record<string, any>>;
+      // Use editedDonorDataJson from request body if provided, otherwise fallback to stored one
+      const donorListToProcess =
+        editedDonorDataJson && Array.isArray(editedDonorDataJson) && editedDonorDataJson.length > 0
+          ? editedDonorDataJson
+          : submission.donorDataJson;
+      const finalDonorList = donorListToProcess as Array<Record<string, any>>;
       recordsProcessed = finalDonorList.length;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const donorList = submission.donorDataJson as Array<Record<string, any>>;
@@ -199,18 +200,18 @@ export async function PUT(request: Request, context: RouteContext) {
           recordsSkippedOrFailed++;
         }
       } // End of loop
-// --- Update the submission status ---
+      // --- Update the submission status ---
       // If admin edited data, also update the stored donorDataJson in UserSubmittedList
       const dataToUpdate: Prisma.UserSubmittedListUpdateInput = {
         status: SubmissionStatus.APPROVED_IMPORTED,
         adminNotes: adminNotes || submission.adminNotes,
         reviewedAt: new Date(),
-        reviewedByAdmin: { 
-          connect: { id: session.user.id } 
+        reviewedByAdmin: {
+          connect: { id: session.user.id },
         },
       };
       if (editedDonorDataJson && Array.isArray(editedDonorDataJson)) {
-          dataToUpdate.donorDataJson = editedDonorDataJson;
+        dataToUpdate.donorDataJson = editedDonorDataJson;
       }
       // --- Update the submission status ---
       const finalUpdatedSubmission = await tx.userSubmittedList.update({
