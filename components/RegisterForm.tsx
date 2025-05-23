@@ -3,6 +3,7 @@
 
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function RegisterForm() {
   const [name, setName] = useState('');
@@ -102,6 +103,29 @@ export default function RegisterForm() {
           disabled={isLoading}
         />
       </div>
+
+      {/* checkbox for terms and conditions */}
+      <div className="flex items-center">
+        <input
+          id="terms"
+          name="terms"
+          type="checkbox"
+          required
+          className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+        />
+        <label htmlFor="terms" className="ml-2 block text-sm text-gray-900">
+          I agree to the
+          <Link
+            target="_blank"
+            href="/terms"
+            className="ml-2 text-indigo-600 hover:text-indigo-500"
+          >
+            terms and conditions
+          </Link>
+        </label>
+      </div>
+
+      {/* Submit button */}
 
       <div>
         <button

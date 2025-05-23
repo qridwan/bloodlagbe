@@ -1,7 +1,7 @@
 // src/app/admin/submitted-lists/[submissionId]/page.tsx
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef, ChangeEvent } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
@@ -11,6 +11,8 @@ import {
   CheckCircleIcon,
   ClipboardCheckIcon,
   InfoIcon,
+  PlusIcon,
+  TrashIcon,
   UserCircleIcon,
   XCircleIcon,
 } from 'lucide-react';
@@ -25,6 +27,7 @@ interface Submitter {
 // Structure of an individual donor record within donorDataJson
 // (matching what user submits, e.g., snake_case headers)
 interface SubmittedDonorRecord {
+  id?: string | number; // Crucial for editable table keys
   name?: string;
   blood_group?: string;
   contact_number?: string;
@@ -33,10 +36,9 @@ interface SubmittedDonorRecord {
   city?: string;
   campus?: string;
   group?: string;
-  is_available?: string | boolean; // User might submit 'True', '1', etc.
+  is_available?: string | boolean;
   tagline?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any; // Allow for other potential columns
+  [key: string]: any;
 }
 
 interface SubmissionDetails {
@@ -54,6 +56,20 @@ interface SubmissionDetails {
   adminNotes?: string | null;
 }
 
+const createNewAdminDonorRow = (): SubmittedDonorRecord => ({
+  id: `admin_new_${Date.now()}_${Math.random()}`,
+  name: '',
+  blood_group: '',
+  contact_number: '',
+  email: '',
+  district: '',
+  city: '',
+  campus: '',
+  group: '',
+  is_available: 'true',
+  tagline: '',
+});
+
 export default function ReviewSubmissionPage() {
   const { data: session, status: sessionStatus } = useSession(); // Ensure session is correctly destructured
   const router = useRouter();
@@ -63,6 +79,15 @@ export default function ReviewSubmissionPage() {
   const [submission, setSubmission] = useState<SubmissionDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // State for editable donor data
+  const [editableDonorData, setEditableDonorData] = useState<SubmittedDonorRecord[]>([]);
+  const [donorTableHeaders, setDonorTableHeaders] = useState<string[]>([]);
+
+  // State for inline editing
+  const [editingCell, setEditingCell] = useState<{ rowIndex: number; columnKey: string } | null>(
+    null
+  );
+  const [editValue, setEditValue] = useState<string>('');
 
   const [isProcessing, setIsProcessing] = useState(false); // For both approve/reject actions
   const [actionError, setActionError] = useState<string | null>(null);
@@ -70,6 +95,34 @@ export default function ReviewSubmissionPage() {
   const [adminReviewNotes, setAdminReviewNotes] = useState('');
   const [importErrors, setImportErrors] = useState<string[]>([]); // To store errors from import process
 
+  const initialDataLoaded = useRef(false);
+  const ADMIN_DRAFT_STORAGE_KEY = `bloodLagbeAdminReviewDraft_${submissionId}`;
+
+  // --- SESSION STORAGE & DATA FETCHING ---
+  useEffect(() => {
+    // Load from sessionStorage on initial mount after session check and if submissionId is present
+    if (sessionStatus === 'authenticated' && submissionId && !initialDataLoaded.current) {
+      const savedDraftString = sessionStorage.getItem(ADMIN_DRAFT_STORAGE_KEY);
+      if (savedDraftString) {
+        try {
+          const draft = JSON.parse(savedDraftString);
+          setEditableDonorData(draft.editableDonorData || []);
+          setAdminReviewNotes(draft.adminReviewNotes || '');
+          if (draft.editableDonorData && draft.editableDonorData.length > 0) {
+            setDonorTableHeaders(
+              Object.keys(draft.editableDonorData[0])
+                .filter((k) => k !== 'id')
+                .map((h) => h.replace(/_/g, ' '))
+            );
+          }
+          console.log(`Loaded admin draft for submission ${submissionId} from session storage.`);
+        } catch (e) {
+          console.error('Failed to parse admin draft from session storage:', e);
+          sessionStorage.removeItem(ADMIN_DRAFT_STORAGE_KEY);
+        }
+      }
+    }
+  }, [sessionStatus, submissionId, ADMIN_DRAFT_STORAGE_KEY]);
   // Authorization check
   useEffect(() => {
     if (sessionStatus === 'loading') return;
@@ -96,10 +149,12 @@ export default function ReviewSubmissionPage() {
         throw new Error(errorData.message);
       }
       const data: SubmissionDetails = await response.json();
-      if (typeof data.donorDataJson === 'string') {
+      let donorJsonData = data.donorDataJson;
+
+      if (typeof donorJsonData === 'string') {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         try {
-          data.donorDataJson = JSON.parse(data.donorDataJson);
+          data.donorDataJson = JSON.parse(donorJsonData);
         } catch (e) {
           data.donorDataJson = [];
         }
@@ -107,6 +162,47 @@ export default function ReviewSubmissionPage() {
       if (!Array.isArray(data.donorDataJson)) data.donorDataJson = [];
       setSubmission(data);
       setAdminReviewNotes(data.adminNotes || '');
+      const sessionDraftString = sessionStorage.getItem(ADMIN_DRAFT_STORAGE_KEY);
+      if (sessionDraftString) {
+        const draft = JSON.parse(sessionDraftString);
+        // If a draft exists, assume it's the admin's current work-in-progress
+        setEditableDonorData(
+          draft.editableDonorData.map((item: SubmittedDonorRecord, index: number) => ({
+            id: item.id || `draft_${index}_${Date.now()}`,
+            ...item,
+          }))
+        );
+        setAdminReviewNotes(draft.adminReviewNotes); // Session storage notes might be more current
+        if (draft.editableDonorData && draft.editableDonorData.length > 0) {
+          setDonorTableHeaders(
+            Object.keys(draft.editableDonorData[0])
+              .filter((k) => k !== 'id')
+              .map((h) => h.replace(/_/g, ' '))
+          );
+        } else if (donorJsonData.length > 0) {
+          setDonorTableHeaders(
+            Object.keys(donorJsonData[0])
+              .filter((k) => k !== 'id')
+              .map((h) => h.replace(/_/g, ' '))
+          );
+        }
+      } else {
+        // No draft, use data from API
+        setEditableDonorData(
+          donorJsonData.map((item, index) => ({
+            id: item.id || `api_${index}_${Date.now()}`,
+            ...item,
+          }))
+        );
+        if (donorJsonData.length > 0) {
+          setDonorTableHeaders(
+            Object.keys(donorJsonData[0])
+              .filter((k) => k !== 'id')
+              .map((h) => h.replace(/_/g, ' '))
+          );
+        }
+      }
+      initialDataLoaded.current = true;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.message || 'Could not load submission details.');
@@ -120,54 +216,115 @@ export default function ReviewSubmissionPage() {
       fetchSubmissionDetails();
     }
   }, [sessionStatus, session, submissionId, fetchSubmissionDetails]);
-
+  // Save to sessionStorage whenever editableDonorData or adminReviewNotes change
+  useEffect(() => {
+    if (
+      sessionStatus === 'authenticated' &&
+      submissionId &&
+      initialDataLoaded.current &&
+      !isLoading
+    ) {
+      const draft = {
+        editableDonorData,
+        adminReviewNotes,
+        timestamp: Date.now(),
+      };
+      if (editableDonorData.length > 0 || adminReviewNotes.trim() !== '') {
+        sessionStorage.setItem(ADMIN_DRAFT_STORAGE_KEY, JSON.stringify(draft));
+        // console.log(`Saved admin draft for submission ${submissionId} to session storage.`);
+      } else {
+        sessionStorage.removeItem(ADMIN_DRAFT_STORAGE_KEY); // Clear if nothing to save
+      }
+    }
+  }, [
+    editableDonorData,
+    adminReviewNotes,
+    submissionId,
+    sessionStatus,
+    isLoading,
+    ADMIN_DRAFT_STORAGE_KEY,
+  ]);
+  // --- EDITABLE TABLE HANDLERS ---
+  const handleEditCell = (rowIndex: number, columnKey: string) => {
+    setEditingCell({ rowIndex, columnKey });
+    setEditValue(String(editableDonorData[rowIndex][columnKey] ?? ''));
+  };
+  const handleEditInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setEditValue(event.target.value);
+  };
+  const handleSaveCell = (rowIndex: number, columnKey: string) => {
+    if (editingCell && editingCell.rowIndex === rowIndex && editingCell.columnKey === columnKey) {
+      const updatedData = [...editableDonorData];
+      updatedData[rowIndex] = { ...updatedData[rowIndex], [columnKey]: editValue };
+      setEditableDonorData(updatedData);
+      setEditingCell(null);
+    }
+  };
+  const handleCellBlur = (rowIndex: number, columnKey: string) => {
+    if (editingCell && editingCell.rowIndex === rowIndex && editingCell.columnKey === columnKey) {
+      handleSaveCell(rowIndex, columnKey);
+    }
+  };
+  const handleCellKeyDown = (
+    event: React.KeyboardEvent<HTMLInputElement>,
+    rowIndex: number,
+    columnKey: string
+  ) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      handleSaveCell(rowIndex, columnKey);
+    } else if (event.key === 'Escape') {
+      setEditingCell(null);
+    }
+  };
+  const handleDeleteRow = (rowIndexToDelete: number) => {
+    if (window.confirm('Are you sure? This will remove the row from this review session.')) {
+      setEditableDonorData((prevData) => prevData.filter((_, index) => index !== rowIndexToDelete));
+    }
+  };
+  const handleAddRow = () => {
+    setEditableDonorData((prevData) => [...prevData, createNewAdminDonorRow()]);
+    if (editableDonorData.length === 0 && donorTableHeaders.length === 0) {
+      setDonorTableHeaders(
+        Object.keys(createNewAdminDonorRow())
+          .filter((k) => k !== 'id')
+          .map((h) => h.replace(/_/g, ' '))
+      );
+    }
+  };
+  // --- END EDITABLE TABLE HANDLERS ---
+  // --- MODIFIED: Approve Action to send editableDonorData ---
   const handleApprove = async () => {
     if (!submission) return;
-
     setIsProcessing(true);
     setActionError(null);
     setActionSuccessMessage(null);
     setImportErrors([]);
-
     try {
       const response = await fetch(`/api/admin/submitted-lists/${submission.id}/approve`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ adminNotes: adminReviewNotes }), // Send current admin notes
+        body: JSON.stringify({
+          adminNotes: adminReviewNotes,
+          // Send the potentially edited donor data
+          donorDataJson: editableDonorData.map(({ id, ...rest }) => rest), // Remove client-side 'id' before sending
+        }),
       });
-
       const result = await response.json();
-
       if (!response.ok) {
         throw new Error(result.message || 'Failed to approve and import submission.');
       }
-
       setActionSuccessMessage(
         result.message || 'Submission approved and import process initiated!'
       );
       if (result.importErrors && result.importErrors.length > 0) {
         setImportErrors(result.importErrors);
       }
-
-      // Update the local submission state to reflect the change
       if (result.submission) {
-        let donorData = result.submission.donorDataJson;
-        if (typeof donorData === 'string') {
-          try {
-            donorData = JSON.parse(donorData);
-          } catch (e) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            donorData = [];
-          }
-        }
-        setSubmission({ ...result.submission, donorDataJson: donorData });
-        setAdminReviewNotes(result.submission.adminNotes || ''); // Update notes from response
+        /* ... update local submission state ... */
       }
-      // Optionally, redirect or disable further actions more permanently
-      // router.push('/admin/submitted-lists');
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      sessionStorage.removeItem(ADMIN_DRAFT_STORAGE_KEY); // Clear draft on success
     } catch (err: any) {
-      console.error(`Error approving submission ${submission.id}:`, err);
       setActionError(err.message);
     } finally {
       setIsProcessing(false);
@@ -204,6 +361,8 @@ export default function ReviewSubmissionPage() {
         setSubmission({ ...result.submission, donorDataJson: donorData });
         setAdminReviewNotes(result.submission.adminNotes || '');
       }
+      sessionStorage.removeItem(ADMIN_DRAFT_STORAGE_KEY); // Clear draft on success
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setActionError(err.message);
@@ -249,7 +408,7 @@ export default function ReviewSubmissionPage() {
 
   // Determine headers for the donor data table dynamically from the first record,
   // or use a predefined list if structure is guaranteed.
-  const donorTableHeaders =
+  const donorTableHeader =
     submission.donorDataJson.length > 0
       ? Object.keys(submission.donorDataJson[0]).map((header) => header.replace(/_/g, ' ')) // Make snake_case readable
       : [];
@@ -377,13 +536,23 @@ export default function ReviewSubmissionPage() {
         </div>
       </section>
 
-      {/* Donor Data Table */}
       <section className="p-6 bg-white rounded-lg shadow-xl">
-        <h2 className="text-xl font-semibold text-slate-700 mb-4">Submitted Donor Data</h2>
-        {submission.donorDataJson.length > 0 ? (
-          <div className="overflow-x-auto border border-slate-200 rounded-md">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold text-slate-700">Submitted Donor Data (Editable)</h2>
+          <button
+            type="button"
+            onClick={handleAddRow}
+            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+            disabled={isProcessing}
+          >
+            <PlusIcon className="w-4 h-4 mr-1.5" /> Add Row
+          </button>
+        </div>
+
+        {editableDonorData.length > 0 ? (
+          <div className="overflow-x-auto border border-slate-200 rounded-md max-h-[70vh]">
             <table className="min-w-full divide-y divide-slate-200 text-sm">
-              <thead className="bg-slate-100">
+              <thead className="bg-slate-100 sticky top-0 z-10">
                 <tr>
                   {donorTableHeaders.map((header) => (
                     <th
@@ -393,32 +562,59 @@ export default function ReviewSubmissionPage() {
                       {header}
                     </th>
                   ))}
+                  <th className="px-3 py-2.5 text-left font-semibold text-slate-600">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-slate-200">
-                {submission.donorDataJson.map((donor, index) => (
-                  <tr key={index} className="hover:bg-slate-50">
-                    {Object.values(donor).map(
-                      (
-                        value,
-                        cellIndex // Assuming order matches headers
-                      ) => (
-                        <td key={cellIndex} className="px-3 py-2 whitespace-nowrap text-slate-700">
-                          {typeof value === 'boolean'
-                            ? value
-                              ? 'Yes'
-                              : 'No'
-                            : String(value ?? '')}
+                {editableDonorData.map((donor, rowIndex) => (
+                  <tr key={donor.id || `row-${rowIndex}`} className="hover:bg-slate-50">
+                    {donorTableHeaders.map((headerKeyOriginal) => {
+                      const headerKey = headerKeyOriginal.replace(/\s+/g, '_'); // Convert display header back to snake_case key
+                      return (
+                        <td
+                          key={`${headerKey}-${rowIndex}`}
+                          className="px-1 py-0.5 whitespace-nowrap group relative"
+                        >
+                          {editingCell?.rowIndex === rowIndex &&
+                          editingCell?.columnKey === headerKey ? (
+                            <input
+                              type="text"
+                              value={editValue}
+                              onChange={handleEditInputChange}
+                              onBlur={() => handleCellBlur(rowIndex, headerKey)}
+                              onKeyDown={(e) => handleCellKeyDown(e, rowIndex, headerKey)}
+                              autoFocus
+                              className="w-full p-1 border border-indigo-500 rounded-sm text-sm focus:ring-1 focus:ring-indigo-500"
+                            />
+                          ) : (
+                            <div
+                              onClick={() => handleEditCell(rowIndex, headerKey)}
+                              className="p-1 min-h-[28px] cursor-pointer hover:bg-indigo-50 rounded-sm w-full block"
+                            >
+                              {String(donor[headerKey] ?? '')}
+                            </div>
+                          )}
                         </td>
-                      )
-                    )}
+                      );
+                    })}
+                    <td className="px-3 py-1 whitespace-nowrap">
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteRow(rowIndex)}
+                        className="p-1 text-red-500 hover:text-red-700 disabled:text-gray-300"
+                        title="Delete row"
+                        disabled={isProcessing}
+                      >
+                        <TrashIcon className="w-4 h-4" />
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         ) : (
-          <p className="text-slate-500">No donor records found in this submission.</p>
+          <p className="text-slate-500">No donor records loaded for editing.</p>
         )}
       </section>
 
