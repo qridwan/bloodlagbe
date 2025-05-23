@@ -1,24 +1,26 @@
 'use client';
 
-import { useState, ChangeEvent, useEffect, FormEvent } from 'react';
+import { useState, ChangeEvent, useEffect, FormEvent, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Papa from 'papaparse'; // For client-side CSV parsing
 import Link from 'next/link';
+import { PlusIcon, TrashIcon } from 'lucide-react';
 
 // Define the expected structure of a donor object from the CSV
 // Matching the user's provided headers (snake_case)
 interface ParsedDonor {
-	name?: string;
-	blood_group?: string; // Will be converted to BloodGroup enum on backend if approved
-	contact_number?: string;
-	email?: string;
-	district?: string;
-	city?: string;
-	campus?: string;
-	group?: string;
-	is_available?: string; // Will be converted to boolean
-	tagline?: string;
+	id?: string | number; // Temporary client-side ID for new rows
+	name: string;
+	blood_group: string;
+	contact_number: string;
+	email: string;
+	district: string;
+	city: string;
+	campus: string;
+	group: string;
+	is_available: string;
+	tagline: string;
 	[key: string]: any; // Allow other potential columns initially
 }
 
@@ -45,27 +47,92 @@ function normalizeHeader(header: string): string {
 	return header.trim().toLowerCase().replace(/\s+/g, '_');
 }
 
+// Helper to create a new empty donor row structure
+const createNewDonorRow = (): ParsedDonor => ({
+	id: `new_${Date.now()}_${Math.random()}`, // Temporary unique ID for client-side key
+	name: '', blood_group: '', contact_number: '', email: '',
+	district: '', city: '', campus: '', group: '',
+	is_available: 'true', // Default to true
+	tagline: ''
+});
+
+const SESSION_STORAGE_KEY = 'bloodLagbeCsvSubmitDraft';
+
 export default function SubmitListPage() {
 	const { data: session, status: sessionStatus } = useSession();
 	const router = useRouter();
-	const searchParams = useSearchParams(); // To get query params
-	const reviseId = searchParams.get('reviseId'); // Get submission ID for revision
+	const searchParams = useSearchParams();
+	const reviseId = searchParams.get('reviseId');
 
 	const [csvFile, setCsvFile] = useState<File | null>(null);
 	const [parsedData, setParsedData] = useState<ParsedDonor[]>([]);
-	const [headers, setHeaders] = useState<string[]>([]);
+	const [headers, setHeaders] = useState<string[]>(EXPECTED_CSV_HEADERS_SNAKE_CASE); // Default to expected headers
 	const [parseError, setParseError] = useState<string | null>(null);
 	const [isParsing, setIsParsing] = useState(false);
 
 	const [listName, setListName] = useState('');
 	const [listNotes, setListNotes] = useState('');
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [submitStatus, setSubmitStatus] = useState<{
-		type: 'success' | 'error';
-		message: string;
-	} | null>(null);
+	const [submitStatus, setSubmitStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
 	const [isLoadingRevisionData, setIsLoadingRevisionData] = useState(false);
 	const [originalAdminNotes, setOriginalAdminNotes] = useState<string | null>(null);
+
+	// State for inline editing
+	const [editingCell, setEditingCell] = useState<{ rowIndex: number; columnKey: string } | null>(null);
+	const [editValue, setEditValue] = useState<string>('');
+	const initialLoadAttempted = useRef(false)
+
+	// --- SESSION STORAGE LOGIC ---
+	// Load from sessionStorage on initial mount or if reviseId changes
+	useEffect(() => {
+		if (sessionStatus !== 'authenticated' || initialLoadAttempted.current) return;
+
+		const savedDraftString = sessionStorage.getItem(SESSION_STORAGE_KEY);
+		if (savedDraftString) {
+			try {
+				const draft = JSON.parse(savedDraftString);
+				// If we are on a specific revision page, only load draft if it matches that revisionId
+				// Or if we are on a new submission page, only load if draft is not for a specific revision
+				if ((reviseId && draft.associatedReviseId === reviseId) || (!reviseId && !draft.associatedReviseId)) {
+					setListName(draft.listName || '');
+					setListNotes(draft.listNotes || '');
+					setParsedData(draft.parsedData || []);
+					setHeaders(draft.headers && draft.headers.length > 0 ? draft.headers : EXPECTED_CSV_HEADERS_SNAKE_CASE);
+					console.log("Loaded draft from session storage.");
+				} else if (!reviseId && draft.associatedReviseId) {
+					// If current page is new submission but draft is for a revision, clear it
+					sessionStorage.removeItem(SESSION_STORAGE_KEY);
+				}
+				// If reviseId is present and draft is for different reviseId, it will be overwritten by API fetch
+			} catch (e) {
+				console.error("Failed to parse draft from session storage:", e);
+				sessionStorage.removeItem(SESSION_STORAGE_KEY);
+			}
+		}
+		initialLoadAttempted.current = true; // Mark that we have attempted initial load
+	}, [sessionStatus, reviseId]); // Run when session is ready and reviseId might be set
+
+	// Save to sessionStorage whenever relevant data changes
+	useEffect(() => {
+		if (sessionStatus === 'authenticated' && initialLoadAttempted.current) { // Only save after initial load attempt
+			const draft = {
+				listName,
+				listNotes,
+				parsedData,
+				headers,
+				associatedReviseId: reviseId, // Important to associate draft with a revision ID
+				timestamp: Date.now(),
+			};
+			// Don't save if it's just an empty initial state for a new submission unless some data is actually entered
+			if (parsedData.length > 0 || listName.trim() !== '' || listNotes.trim() !== '') {
+				sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(draft));
+				// console.log("Saved draft to session storage.");
+			} else if (!reviseId) { // If it's a new submission and all fields are empty, clear storage
+				sessionStorage.removeItem(SESSION_STORAGE_KEY);
+			}
+		}
+	}, [listName, listNotes, parsedData, headers, reviseId, sessionStatus]);
+
 
 	useEffect(() => {
 		if (sessionStatus === 'unauthenticated') {
@@ -75,6 +142,58 @@ export default function SubmitListPage() {
 			router.replace(`/login?callbackUrl=${encodeURIComponent(callbackPath)}`);
 		}
 	}, [sessionStatus, router, reviseId]);
+
+	  // Fetch data if revising (this will run after the sessionStorage load attempt)
+  useEffect(() => {
+    if (reviseId && sessionStatus === 'authenticated') {
+      initialLoadAttempted.current = false; // Reset for this specific fetch operation to allow sessionStorage save after
+      setIsLoadingRevisionData(true);
+      const fetchSubmissionForRevision = async () => {
+        try {
+          const response = await fetch(`/api/submissions/donor-lists/${reviseId}`);
+          if (!response.ok) { throw new Error("Failed to load submission for revision."); }
+          const data = await response.json();
+
+          // Check if sessionStorage has more recent edits for THIS reviseId
+          const savedDraftString = sessionStorage.getItem(SESSION_STORAGE_KEY);
+          let useSessionData = false;
+          if (savedDraftString) {
+            const draft = JSON.parse(savedDraftString);
+            if (draft.associatedReviseId === reviseId && draft.timestamp > new Date(data.submittedAt).getTime()) { // Or a different timestamp if available
+                // Simple timestamp check; more robust would be a content hash or versioning
+                // For now, if sessionStorage is newer AND for this specific reviseId, we might prefer it
+                // However, it's safer to prioritize API data for a revision and let user re-edit
+                // So, let's always load from API for reviseId, sessionStorage will capture new edits
+                console.log("Revision data fetched from API. Session draft (if any for this ID) will be overwritten by new edits.");
+            }
+          }
+
+          // Always set from API when reviseId is present initially; subsequent edits save to session.
+          setListName(data.listName || '');
+          setListNotes(data.notes || '');
+          let donorJsonData = data.donorDataJson;
+          if (typeof donorJsonData === 'string') { /* ... parse ... */ }
+          const loadedData = Array.isArray(donorJsonData) ? donorJsonData : [];
+          setParsedData(loadedData.map((item, index) => ({ id: item.id || `loaded_${index}_${Date.now()}`, ...item })));
+          if (loadedData.length > 0 && Object.keys(loadedData[0]).length > 0) {
+            setHeaders(Object.keys(loadedData[0]).map(normalizeHeader));
+          } else {
+            setHeaders(EXPECTED_CSV_HEADERS_SNAKE_CASE);
+          }
+          setOriginalAdminNotes(data.adminNotes || null);
+        } catch (err: any) {
+          setSubmitStatus({ type: 'error', message: `Error loading revision data: ${err.message}` });
+        } finally {
+          setIsLoadingRevisionData(false);
+          initialLoadAttempted.current = true; // Mark that API load attempt finished
+        }
+      };
+      fetchSubmissionForRevision();
+    } else if (!reviseId) {
+        // For new submissions, ensure initialLoadAttempted is true after session storage check
+        // This is handled by the sessionStorage load useEffect
+    }
+  }, [reviseId, sessionStatus]);
 
 	// Fetch data if revising
 	useEffect(() => {
@@ -120,17 +239,20 @@ export default function SubmitListPage() {
 		}
 	}, [reviseId, sessionStatus]);
 
-	const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-		setParseError(null);
-		setParsedData([]);
-		setHeaders([]);
-		setSubmitStatus(null);
-		if (event.target.files && event.target.files[0]) {
-			setCsvFile(event.target.files[0]);
-		} else {
-			setCsvFile(null);
-		}
-	};
+ const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    sessionStorage.removeItem(SESSION_STORAGE_KEY); // Clear old draft when new file selected
+    setParseError(null);
+    setParsedData([]);
+    setHeaders(EXPECTED_CSV_HEADERS_SNAKE_CASE);
+    setSubmitStatus(null);
+    setListName('');
+    setListNotes('');
+    if (event.target.files && event.target.files[0]) {
+      setCsvFile(event.target.files[0]);
+    } else {
+      setCsvFile(null);
+    }
+  };
 
 	const handleParseCsv = () => {
 		if (!csvFile) {
@@ -146,20 +268,21 @@ export default function SubmitListPage() {
 			skipEmptyLines: true,
 			transformHeader: (header) => normalizeHeader(header), // Normalize to snake_case lowercase
 			complete: (results) => {
-				const processedHeaders = results.meta.fields as string[];
-				setHeaders(processedHeaders);
-
-				// Validate headers
-				const missingHeaders = EXPECTED_CSV_HEADERS_SNAKE_CASE.filter(
-					(expectedHeader) => !processedHeaders.includes(expectedHeader)
-				);
-
-				if (missingHeaders.length > 0) {
-					setParseError(`Missing expected CSV headers: ${missingHeaders.join(', ')}. 
-                         Please ensure your CSV has these headers (snake_case, lowercase): ${EXPECTED_CSV_HEADERS_SNAKE_CASE.join(', ')}`);
+				const processedHeaders = (results.meta.fields as string[]) || [];
+				setHeaders(processedHeaders.length > 0 ? processedHeaders : EXPECTED_CSV_HEADERS_SNAKE_CASE);
+				const missing = EXPECTED_CSV_HEADERS_SNAKE_CASE.filter(eh => !processedHeaders.includes(eh));
+				if (missing.length > 0 && processedHeaders.length > 0) { // only error if headers were actually parsed but are wrong
+					setParseError(`Missing/mismatched headers: ${missing.join(', ')}. Ensure all expected headers are present and correctly named (e.g., 'blood_group').`);
 					setParsedData([]);
 				} else {
-					setParsedData(results.data as ParsedDonor[]);
+					const dataWithClientIds = (results.data as ParsedDonor[]).map((row, index) => ({
+						id: `csv_${index}_${Date.now()}`, // Ensure unique key for React
+						...EXPECTED_CSV_HEADERS_SNAKE_CASE.reduce((obj, header) => { // Ensure all expected keys exist
+							obj[header] = row[header] !== undefined ? String(row[header]) : '';
+							return obj;
+						}, {} as ParsedDonor)
+					}));
+					setParsedData(dataWithClientIds);
 				}
 				setIsParsing(false);
 			},
@@ -173,7 +296,52 @@ export default function SubmitListPage() {
 		});
 	};
 
-	// Placeholder for submitting the (potentially edited) parsedData
+	// --- EDITABLE TABLE HANDLERS ---
+	const handleEditCell = (rowIndex: number, columnKey: string) => {
+		setEditingCell({ rowIndex, columnKey });
+		setEditValue(String(parsedData[rowIndex][columnKey] ?? ''));
+	};
+
+	const handleSaveCell = (rowIndex: number, columnKey: string) => {
+		if (editingCell && editingCell.rowIndex === rowIndex && editingCell.columnKey === columnKey) {
+			const updatedData = [...parsedData];
+			updatedData[rowIndex] = { ...updatedData[rowIndex], [columnKey]: editValue };
+			setParsedData(updatedData);
+			setEditingCell(null);
+		}
+	};
+
+	const handleEditInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+		setEditValue(event.target.value);
+	};
+
+	const handleCellBlur = (rowIndex: number, columnKey: string) => {
+		// Save on blur if it's an active editing cell
+		if (editingCell && editingCell.rowIndex === rowIndex && editingCell.columnKey === columnKey) {
+			handleSaveCell(rowIndex, columnKey);
+		}
+	};
+
+	const handleCellKeyDown = (event: React.KeyboardEvent<HTMLInputElement>, rowIndex: number, columnKey: string) => {
+		if (event.key === 'Enter') {
+			event.preventDefault();
+			handleSaveCell(rowIndex, columnKey);
+		} else if (event.key === 'Escape') {
+			setEditingCell(null); // Cancel editing
+		}
+	};
+
+	const handleDeleteRow = (rowIndexToDelete: number) => {
+		if (window.confirm('Are you sure you want to delete this row?')) {
+			setParsedData(prevData => prevData.filter((_, index) => index !== rowIndexToDelete));
+		}
+	};
+
+	const handleAddRow = () => {
+		setParsedData(prevData => [...prevData, createNewDonorRow()]);
+	};
+	// --- END EDITABLE TABLE HANDLERS ---
+
 	const handleSubmitForReview = async (e: FormEvent) => {
 		e.preventDefault()
 		console.log({ parsedData });
@@ -218,6 +386,9 @@ export default function SubmitListPage() {
 				type: 'success',
 				message: result.message || `List ${reviseId ? 'resubmitted' : 'submitted'} successfully!`,
 			});
+
+			 sessionStorage.removeItem(SESSION_STORAGE_KEY); // Clear draft on successful submission
+
 
 			if (reviseId) {
 				// Redirect to "My Submissions" page after revising
@@ -382,38 +553,69 @@ export default function SubmitListPage() {
 				)}
 
 				{parsedData.length > 0 && (
-					<section className="p-6 bg-white rounded-lg shadow-xl space-y-4">
-						<h2 className="text-xl font-semibold text-gray-700">
-							Preview Data ({parsedData.length} records)
-						</h2>
-						<p className="text-sm text-gray-600">
-							Below is a preview of your data. Currently, this view is read-only.
-							{/* In the next step, we'll make this table editable. */}
+					<section className="space-y-4 mt-6">
+						<div className="flex justify-between items-center">
+							<h2 className="text-xl font-semibold text-gray-700">
+								Preview & Edit Data ({parsedData.length} records found)
+							</h2>
+							<button
+								type="button"
+								onClick={handleAddRow}
+								className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+							>
+								<PlusIcon className="w-4 h-4 mr-1.5" /> Add Row
+							</button>
+						</div>
+						<p className="text-sm text-gray-500">
+							Click on a cell to edit its content. Press Enter or click outside the cell to save the change.
 						</p>
-						<div className="overflow-x-auto max-h-[500px]">
-							{' '}
-							{/* Max height and scroll for table */}
+						<div className="overflow-x-auto max-h-[60vh] border border-gray-200 rounded-md">
 							<table className="min-w-full divide-y divide-gray-200 text-sm">
-								<thead className="bg-gray-100 sticky top-0">
+								<thead className="bg-gray-100 sticky top-0 z-10">
 									<tr>
 										{headers.map((header) => (
-											<th
-												key={header}
-												className="px-3 py-2 text-left font-medium text-gray-600 uppercase tracking-wider"
-											>
+											<th key={header} className="px-3 py-2.5 text-left font-medium text-gray-600 uppercase tracking-wider">
 												{header.replace(/_/g, ' ')}
 											</th>
 										))}
+										<th className="px-3 py-2.5 text-left font-medium text-gray-600 uppercase tracking-wider">Actions</th>
 									</tr>
 								</thead>
 								<tbody className="bg-white divide-y divide-gray-200">
 									{parsedData.map((row, rowIndex) => (
-										<tr key={rowIndex} className="hover:bg-gray-50">
-											{headers.map((header) => (
-												<td key={`${header}-${rowIndex}`} className="px-3 py-2 whitespace-nowrap">
-													{String(row[header] ?? '')}
+										<tr key={row.id || `row-${rowIndex}`} className="hover:bg-gray-50">
+											{headers.map((headerKey) => (
+												<td key={`${headerKey}-${rowIndex}`} className="px-1 py-0.5 whitespace-nowrap group relative"> {/* Reduced padding */}
+													{editingCell?.rowIndex === rowIndex && editingCell?.columnKey === headerKey ? (
+														<input
+															type="text"
+															value={editValue}
+															onChange={handleEditInputChange}
+															onBlur={() => handleCellBlur(rowIndex, headerKey)}
+															onKeyDown={(e) => handleCellKeyDown(e, rowIndex, headerKey)}
+															autoFocus
+															className="w-full p-1 border border-indigo-500 rounded-sm text-sm focus:ring-1 focus:ring-indigo-500"
+														/>
+													) : (
+														<div
+															onClick={() => handleEditCell(rowIndex, headerKey)}
+															className="p-1 min-h-[28px] cursor-pointer hover:bg-indigo-50 rounded-sm w-full block" // Ensure it's clickable
+														>
+															{String(row[headerKey] ?? '')}
+														</div>
+													)}
 												</td>
 											))}
+											<td className="px-3 py-1 whitespace-nowrap">
+												<button
+													type="button"
+													onClick={() => handleDeleteRow(rowIndex)}
+													className="p-1 text-red-500 hover:text-red-700"
+													title="Delete row"
+												>
+													<TrashIcon className="w-4 h-4" />
+												</button>
+											</td>
 										</tr>
 									))}
 								</tbody>

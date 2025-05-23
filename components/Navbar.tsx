@@ -9,7 +9,6 @@ export default function Navbar() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const path = usePathname();
-  console.log({ path });
 
   const handleSignOut = async () => {
     await signOut({ redirect: false }); // Set redirect to false if you want to handle it manually
@@ -67,7 +66,7 @@ export default function Navbar() {
                   )}
                 </>
               )}
-            </div>
+              </div>
           </div>
           <div className="hidden md:block">
             <div className="ml-4 flex items-center md:ml-6">

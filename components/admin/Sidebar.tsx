@@ -8,6 +8,8 @@ import { usePathname } from 'next/navigation';
 export const adminNavigationItems = [
   { name: 'Overview', href: '/admin', icon: '🏠' }, // Admin Dashboard Home
   { name: 'Upload Donors', href: '/admin/upload', icon: '📤' },
+  { name: 'Manage Campuses', href: '/admin/campuses', icon: '🏫' },
+  { name: 'Manage Groups', href: '/admin/groups', icon: '👥' },
   { name: 'Submitted Donor Lists', href: '/admin/submittedLists', icon: '📋' },
   { name: 'View Feedback', href: '/admin/feedback', icon: '💬' },
   // { name: 'Submitted Lists', href: '/admin/submitted-lists', icon: '📋' }, // For future feature
